@@ -90,3 +90,6 @@ create policy "gastos_all" on gastos for all using (auth.role() = 'authenticated
 
 -- Mantenimientos: solo admin
 create policy "mantenimientos_all" on mantenimientos for all using (auth.role() = 'authenticated');
+
+-- Realtime: permite suscribirse a cambios en rentas (usado en /reserva/[id])
+alter publication supabase_realtime add table rentas;
