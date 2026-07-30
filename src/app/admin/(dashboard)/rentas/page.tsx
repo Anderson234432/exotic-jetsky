@@ -57,7 +57,6 @@ export default function AdminRentasPage() {
   }, [supabase]);
 
   useEffect(() => {
-    setCargando(true);
     let query = supabase
       .from("rentas")
       .select("*, jetski:jetskis(*), cliente:clientes(nombre, cedula, telefono)")

@@ -51,7 +51,6 @@ export default function AdminFinanzasPage() {
   const hasta = periodo === "personalizado" ? hastaCustom : hoy;
 
   useEffect(() => {
-    setCargando(true);
     Promise.all([
       supabase
         .from("rentas")
