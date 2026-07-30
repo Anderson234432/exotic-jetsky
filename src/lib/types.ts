@@ -98,6 +98,11 @@ export interface Database {
       >;
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      sumar_horas_maquina: {
+        Args: { p_jetski_id: string; p_horas: number };
+        Returns: undefined;
+      };
+    };
   };
 }

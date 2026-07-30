@@ -4,15 +4,25 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { formatFecha, formatHora12h } from "@/lib/format";
-import type { Jetski, Renta } from "@/lib/types";
+import type { EstadoRenta } from "@/lib/types";
 
 const WHATSAPP_URL = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMERO}`;
 
-type RentaConJetski = Renta & { jetski: Jetski | null };
+// Solo los campos no sensibles: el resto de la tabla (fotos, depósito, notas,
+// operador) está restringido a "anon" a nivel de columna en Supabase (ver
+// supabase/schema.sql) para que esta consulta pública no pueda dumpear datos
+// de otras reservas.
+interface RentaPublica {
+  id: string;
+  estado: EstadoRenta;
+  fecha: string;
+  hora_inicio: string;
+  jetski: { nombre: string } | null;
+}
 
 export function ReservaEstado({ id }: { id: string }) {
   const supabase = createClient();
-  const [renta, setRenta] = useState<RentaConJetski | null>(null);
+  const [renta, setRenta] = useState<RentaPublica | null>(null);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
@@ -20,12 +30,12 @@ export function ReservaEstado({ id }: { id: string }) {
 
     supabase
       .from("rentas")
-      .select("*, jetski:jetskis(*)")
+      .select("id, estado, fecha, hora_inicio, jetski:jetskis(nombre)")
       .eq("id", id)
       .single()
       .then(({ data }) => {
         if (activo) {
-          setRenta(data as unknown as RentaConJetski);
+          setRenta(data as unknown as RentaPublica);
           setCargando(false);
         }
       });
@@ -37,7 +47,9 @@ export function ReservaEstado({ id }: { id: string }) {
         { event: "UPDATE", schema: "public", table: "rentas", filter: `id=eq.${id}` },
         (payload) => {
           setRenta((prev) =>
-            prev ? { ...prev, ...(payload.new as Renta) } : (payload.new as RentaConJetski)
+            prev
+              ? { ...prev, ...(payload.new as Partial<RentaPublica>) }
+              : (payload.new as RentaPublica)
           );
         }
       )

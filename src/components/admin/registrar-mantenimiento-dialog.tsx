@@ -37,6 +37,16 @@ export function RegistrarMantenimientoDialog({
     e.preventDefault();
     setGuardando(true);
     try {
+      // Lee las horas de máquina más recientes (no la prop, que puede estar
+      // desactualizada si el jetski se usó en otra renta desde que se cargó
+      // esta página).
+      const { data: jetskiActual, error: errorLectura } = await supabase
+        .from("jetskis")
+        .select("horas_maquina")
+        .eq("id", jetski.id)
+        .single();
+      if (errorLectura || !jetskiActual) throw errorLectura;
+
       const { data: mantenimiento, error: errorMant } = await supabase
         .from("mantenimientos")
         .insert({
@@ -44,7 +54,7 @@ export function RegistrarMantenimientoDialog({
           fecha,
           descripcion: descripcion.trim() || null,
           costo: Number(costo) || 0,
-          horas_en_mantenimiento: jetski.horas_maquina,
+          horas_en_mantenimiento: jetskiActual.horas_maquina,
         })
         .select()
         .single();
@@ -52,7 +62,7 @@ export function RegistrarMantenimientoDialog({
 
       const { data: jetskiActualizado, error: errorJetski } = await supabase
         .from("jetskis")
-        .update({ horas_ultimo_mantenimiento: jetski.horas_maquina })
+        .update({ horas_ultimo_mantenimiento: jetskiActual.horas_maquina })
         .eq("id", jetski.id)
         .select()
         .single();

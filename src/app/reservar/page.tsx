@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { subirArchivo } from "@/lib/storage";
-import { formatMoneda } from "@/lib/format";
+import { formatMoneda, hoyRD } from "@/lib/format";
 import type { Jetski } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,8 @@ import { mensajeError } from "@/lib/errors";
 
 const WHATSAPP_URL = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMERO}`;
 const TOTAL_PASOS = 3;
+
+type JetskiPublico = Pick<Jetski, "id" | "nombre" | "precio_hora">;
 
 interface FormState {
   nombre: string;
@@ -52,7 +54,7 @@ export default function ReservarPage() {
   const supabase = createClient();
 
   const [paso, setPaso] = useState(1);
-  const [jetskis, setJetskis] = useState<Jetski[]>([]);
+  const [jetskis, setJetskis] = useState<JetskiPublico[]>([]);
   const [form, setForm] = useState<FormState>(initialState);
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -60,7 +62,7 @@ export default function ReservarPage() {
   useEffect(() => {
     supabase
       .from("jetskis")
-      .select("*")
+      .select("id, nombre, precio_hora")
       .eq("estado", "disponible")
       .order("nombre")
       .then(({ data }) => setJetskis(data ?? []));
@@ -79,7 +81,14 @@ export default function ReservarPage() {
   }
 
   function validarPaso2() {
-    return form.jetskiId && form.fecha && form.horaInicio && horas > 0;
+    return (
+      form.jetskiId &&
+      form.fecha &&
+      form.fecha >= hoyRD() &&
+      form.horaInicio &&
+      horas > 0 &&
+      horas <= 24
+    );
   }
 
   async function handleSubmit() {
@@ -119,7 +128,7 @@ export default function ReservarPage() {
           adelanto_foto_url: fotoUrl,
           reglas_aceptadas: form.reglasAceptadas,
         })
-        .select()
+        .select("id")
         .single();
       if (errorRenta || !renta) throw errorRenta;
 
@@ -162,6 +171,7 @@ export default function ReservarPage() {
                 <Input
                   id="nombre"
                   className="h-11"
+                  maxLength={100}
                   value={form.nombre}
                   onChange={(e) => update("nombre", e.target.value)}
                 />
@@ -171,6 +181,7 @@ export default function ReservarPage() {
                 <Input
                   id="cedula"
                   className="h-11"
+                  maxLength={20}
                   value={form.cedula}
                   onChange={(e) => update("cedula", e.target.value)}
                 />
@@ -181,6 +192,7 @@ export default function ReservarPage() {
                   id="telefono"
                   type="tel"
                   className="h-11"
+                  maxLength={20}
                   value={form.telefono}
                   onChange={(e) => update("telefono", e.target.value)}
                 />
@@ -222,6 +234,7 @@ export default function ReservarPage() {
                   id="fecha"
                   type="date"
                   className="h-11"
+                  min={hoyRD()}
                   value={form.fecha}
                   onChange={(e) => update("fecha", e.target.value)}
                 />
@@ -242,6 +255,7 @@ export default function ReservarPage() {
                   id="horas"
                   type="number"
                   min={1}
+                  max={24}
                   step={1}
                   className="h-11"
                   value={form.horasRenta}

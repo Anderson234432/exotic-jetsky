@@ -99,9 +99,68 @@ alter publication supabase_realtime add table rentas;
 
 -- Storage: bucket "exotic-jetsky" — el toggle "Public" del bucket solo habilita
 -- lectura pública; el insert (subida de fotos) sigue bloqueado por RLS sin estas
--- políticas. Insert público porque el formulario de reserva sube fotos sin sesión.
+-- políticas. Insert acotado por carpeta: "adelantos/" es público (el cliente
+-- sube el comprobante sin sesión), "jetskis/" y "rentas/" solo admin.
+drop policy if exists "exotic_jetsky_insert" on storage.objects;
+
 create policy "exotic_jetsky_select" on storage.objects
   for select using (bucket_id = 'exotic-jetsky');
 
-create policy "exotic_jetsky_insert" on storage.objects
-  for insert with check (bucket_id = 'exotic-jetsky');
+create policy "exotic_jetsky_insert_publico" on storage.objects
+  for insert
+  with check (bucket_id = 'exotic-jetsky' and (storage.foldername(name))[1] = 'adelantos');
+
+create policy "exotic_jetsky_insert_admin" on storage.objects
+  for insert
+  with check (
+    bucket_id = 'exotic-jetsky'
+    and auth.role() = 'authenticated'
+    and (storage.foldername(name))[1] in ('jetskis', 'rentas')
+  );
+
+-- ═══════════════════════════════════════════════════════════════
+-- AUDITORÍA DE SEGURIDAD — ejecutar después de lo anterior
+-- ═══════════════════════════════════════════════════════════════
+
+-- 1) Límites en el bucket: evita abuso (archivos gigantes o no-imagen)
+update storage.buckets
+set file_size_limit = 5242880, -- 5 MB
+    allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
+where id = 'exotic-jetsky';
+
+-- 2) rentas_select es "using (true)" porque /reserva/[id] es una página pública
+-- sin login que rastrea UNA reserva por su UUID (impredecible). El problema:
+-- eso también permite a cualquiera con la anon key hacer
+-- GET /rest/v1/rentas?select=* y descargar TODAS las reservas (fotos de
+-- comprobantes, depósitos, notas). La fila sigue siendo legible por diseño,
+-- pero restringimos qué COLUMNAS puede leer el rol "anon" (los admins,
+-- rol "authenticated", no se ven afectados — siguen viendo todo).
+revoke select on rentas from anon;
+grant select (id, jetski_id, estado, fecha, hora_inicio) on rentas to anon;
+
+-- 3) Mismo problema en jetskis: precio_compra (costo real del jetski) y las
+-- horas de máquina son datos internos del negocio, no deberían ser públicos.
+revoke select on jetskis from anon;
+grant select (id, nombre, foto_url, precio_hora, estado) on jetskis to anon;
+
+-- 4) Cotas server-side (el HTML min/max se puede saltar con una llamada
+-- directa a la API). Sin esto, cualquiera puede mandar horas_renta = -50000
+-- o 999999999 vía POST directo a /rest/v1/rentas.
+alter table rentas add constraint horas_renta_rango check (horas_renta > 0 and horas_renta <= 24);
+alter table clientes add constraint nombre_longitud check (char_length(nombre) <= 100);
+alter table clientes add constraint cedula_longitud check (char_length(cedula) <= 20);
+alter table clientes add constraint telefono_longitud check (char_length(telefono) <= 20);
+
+-- 5) Suma atómica de horas_maquina al completar una renta (antes era
+-- leer-en-JS-y-escribir, con condición de carrera si dos admins completan
+-- rentas del mismo jetski al mismo tiempo). SECURITY INVOKER (default): se
+-- ejecuta con los permisos del que llama, así que la policy jetskis_update
+-- (solo authenticated) se sigue respetando igual que antes.
+create or replace function sumar_horas_maquina(p_jetski_id uuid, p_horas numeric)
+returns void
+language sql
+as $$
+  update jetskis set horas_maquina = horas_maquina + p_horas where id = p_jetski_id;
+$$;
+
+grant execute on function sumar_horas_maquina(uuid, numeric) to authenticated;

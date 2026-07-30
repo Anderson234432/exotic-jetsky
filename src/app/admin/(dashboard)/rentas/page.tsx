@@ -103,17 +103,16 @@ export default function AdminRentasPage() {
     if (!renta.jetski_id) return;
     marcarProcesando(renta.id, true);
 
-    const { data: jetski } = await supabase
-      .from("jetskis")
-      .select("horas_maquina")
-      .eq("id", renta.jetski_id)
-      .single();
-
-    if (jetski) {
-      await supabase
-        .from("jetskis")
-        .update({ horas_maquina: jetski.horas_maquina + renta.horas_renta })
-        .eq("id", renta.jetski_id);
+    // Suma atómica en la base de datos (evita condición de carrera si dos
+    // admins completan rentas del mismo jetski al mismo tiempo).
+    const { error: errorHoras } = await supabase.rpc("sumar_horas_maquina", {
+      p_jetski_id: renta.jetski_id,
+      p_horas: renta.horas_renta,
+    });
+    if (errorHoras) {
+      toast.error(mensajeError(errorHoras));
+      marcarProcesando(renta.id, false);
+      return;
     }
 
     const { error } = await supabase

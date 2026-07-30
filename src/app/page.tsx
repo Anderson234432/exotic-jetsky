@@ -19,7 +19,7 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data: jetskis } = await supabase
     .from("jetskis")
-    .select("*")
+    .select("id, nombre, foto_url, precio_hora")
     .eq("estado", "disponible")
     .order("nombre");
 
@@ -86,7 +86,7 @@ export default async function HomePage() {
           </p>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {jetskis.map((jetski: Jetski) => (
+            {jetskis.map((jetski: Pick<Jetski, "id" | "nombre" | "foto_url" | "precio_hora">) => (
               <Card key={jetski.id} className="overflow-hidden py-0">
                 <div className="relative h-44 w-full bg-slate-100">
                   {jetski.foto_url ? (
