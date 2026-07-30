@@ -4,6 +4,20 @@ export function hoyRD(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: ZONA_RD });
 }
 
+export function inicioSemanaRD(): string {
+  const [anio, mes, dia] = hoyRD().split("-").map(Number);
+  const fechaUTC = new Date(Date.UTC(anio, mes - 1, dia));
+  const diaSemanaISO = fechaUTC.getUTCDay() || 7; // lunes=1 ... domingo=7
+  fechaUTC.setUTCDate(fechaUTC.getUTCDate() - (diaSemanaISO - 1));
+  return fechaUTC.toISOString().slice(0, 10);
+}
+
+export function inicioMesRD(): string {
+  const hoy = hoyRD();
+  const [anio, mes] = hoy.split("-");
+  return `${anio}-${mes}-01`;
+}
+
 export function formatMoneda(valor: number): string {
   return `RD$${valor.toLocaleString("es-DO", { maximumFractionDigits: 0 })}`;
 }

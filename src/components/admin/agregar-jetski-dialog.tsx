@@ -40,7 +40,7 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
     setIntervalo("15");
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setGuardando(true);
     try {

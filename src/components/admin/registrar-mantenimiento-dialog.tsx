@@ -32,7 +32,7 @@ export function RegistrarMantenimientoDialog({
   const [descripcion, setDescripcion] = useState("");
   const [costo, setCosto] = useState("0");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setGuardando(true);
     try {
