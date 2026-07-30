@@ -67,43 +67,37 @@ export interface RentaConRelaciones extends Renta {
   cliente: Cliente | null;
 }
 
+type Materializar<T> = { [K in keyof T]: T[K] };
+
+type TablaGenerica<Row, Insert> = {
+  Row: Materializar<Row>;
+  Insert: Materializar<Insert>;
+  Update: Materializar<Partial<Row>>;
+  Relationships: [];
+};
+
 export interface Database {
   public: {
     Tables: {
-      jetskis: {
-        Row: Jetski;
-        Insert: Partial<Jetski> & {
-          nombre: string;
-          precio_compra: number;
-          precio_hora: number;
-          anio: number;
-        };
-        Update: Partial<Jetski>;
-      };
-      clientes: {
-        Row: Cliente;
-        Insert: Partial<Cliente> & { nombre: string; cedula: string; telefono: string };
-        Update: Partial<Cliente>;
-      };
-      rentas: {
-        Row: Renta;
-        Insert: Partial<Renta> & {
-          fecha: string;
-          hora_inicio: string;
-          horas_renta: number;
-        };
-        Update: Partial<Renta>;
-      };
-      gastos: {
-        Row: Gasto;
-        Insert: Partial<Gasto> & { tipo: TipoGasto; monto: number };
-        Update: Partial<Gasto>;
-      };
-      mantenimientos: {
-        Row: Mantenimiento;
-        Insert: Partial<Mantenimiento> & { horas_en_mantenimiento: number };
-        Update: Partial<Mantenimiento>;
-      };
+      jetskis: TablaGenerica<
+        Jetski,
+        Partial<Jetski> & { nombre: string; precio_compra: number; precio_hora: number; anio: number }
+      >;
+      clientes: TablaGenerica<
+        Cliente,
+        Partial<Cliente> & { nombre: string; cedula: string; telefono: string }
+      >;
+      rentas: TablaGenerica<
+        Renta,
+        Partial<Renta> & { fecha: string; hora_inicio: string; horas_renta: number }
+      >;
+      gastos: TablaGenerica<Gasto, Partial<Gasto> & { tipo: TipoGasto; monto: number }>;
+      mantenimientos: TablaGenerica<
+        Mantenimiento,
+        Partial<Mantenimiento> & { horas_en_mantenimiento: number }
+      >;
     };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
   };
 }
