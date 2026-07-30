@@ -7,6 +7,7 @@ export interface Jetski {
   nombre: string;
   foto_url: string | null;
   precio_compra: number;
+  precio_hora: number;
   anio: number;
   horas_maquina: number;
   horas_mantenimiento_intervalo: number;
@@ -71,7 +72,12 @@ export interface Database {
     Tables: {
       jetskis: {
         Row: Jetski;
-        Insert: Partial<Jetski> & { nombre: string; precio_compra: number; anio: number };
+        Insert: Partial<Jetski> & {
+          nombre: string;
+          precio_compra: number;
+          precio_hora: number;
+          anio: number;
+        };
         Update: Partial<Jetski>;
       };
       clientes: {
