@@ -27,15 +27,18 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isLoginPage = request.nextUrl.pathname === "/admin/login";
+  const rutaPublica =
+    request.nextUrl.pathname === "/admin/login" ||
+    request.nextUrl.pathname === "/admin/olvide-password" ||
+    request.nextUrl.pathname.startsWith("/admin/auth/confirmar");
 
-  if (!user && !isLoginPage) {
+  if (!user && !rutaPublica) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
     return NextResponse.redirect(url);
   }
 
-  if (user && isLoginPage) {
+  if (user && request.nextUrl.pathname === "/admin/login") {
     const url = request.nextUrl.clone();
     url.pathname = "/admin";
     return NextResponse.redirect(url);

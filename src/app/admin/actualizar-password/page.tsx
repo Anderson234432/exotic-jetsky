@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,19 +9,23 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export default function AdminLoginPage() {
+export default function ActualizarPasswordPage() {
   const router = useRouter();
   const supabase = createClient();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmar, setConfirmar] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (password !== confirmar) {
+      toast.error("Las contraseñas no coinciden.");
+      return;
+    }
+
     setLoading(true);
-
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-
+    const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
 
     if (error) {
@@ -30,6 +33,7 @@ export default function AdminLoginPage() {
       return;
     }
 
+    toast.success("Contraseña actualizada.");
     router.push("/admin");
     router.refresh();
   }
@@ -41,31 +45,33 @@ export default function AdminLoginPage() {
           <h1 className="text-2xl font-bold">
             Exotic <span className="text-brand-accent">Jetsky</span>
           </h1>
-          <p className="text-sm text-muted-foreground">Panel de administración</p>
+          <p className="text-sm text-muted-foreground">Nueva contraseña</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="email">Correo</Label>
+              <Label htmlFor="password">Nueva contraseña</Label>
               <Input
-                id="email"
-                type="email"
-                autoComplete="username"
+                id="password"
+                type="password"
+                autoComplete="new-password"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="h-11"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="confirmar">Confirmar contraseña</Label>
               <Input
-                id="password"
+                id="confirmar"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                minLength={6}
+                value={confirmar}
+                onChange={(e) => setConfirmar(e.target.value)}
                 className="h-11"
               />
             </div>
@@ -74,14 +80,8 @@ export default function AdminLoginPage() {
               disabled={loading}
               className="h-11 bg-brand hover:bg-brand/90 text-brand-foreground"
             >
-              {loading ? "Ingresando..." : "Ingresar"}
+              {loading ? "Guardando..." : "Guardar contraseña"}
             </Button>
-            <Link
-              href="/admin/olvide-password"
-              className="text-center text-sm text-brand underline"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
           </form>
         </CardContent>
       </Card>
