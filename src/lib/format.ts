@@ -1,3 +1,9 @@
+const ZONA_RD = "America/Santo_Domingo";
+
+export function hoyRD(): string {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: ZONA_RD });
+}
+
 export function formatMoneda(valor: number): string {
   return `RD$${valor.toLocaleString("es-DO", { maximumFractionDigits: 0 })}`;
 }
