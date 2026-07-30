@@ -102,6 +102,9 @@ alter publication supabase_realtime add table rentas;
 -- políticas. Insert acotado por carpeta: "adelantos/" es público (el cliente
 -- sube el comprobante sin sesión), "jetskis/" y "rentas/" solo admin.
 drop policy if exists "exotic_jetsky_insert" on storage.objects;
+drop policy if exists "exotic_jetsky_select" on storage.objects;
+drop policy if exists "exotic_jetsky_insert_publico" on storage.objects;
+drop policy if exists "exotic_jetsky_insert_admin" on storage.objects;
 
 create policy "exotic_jetsky_select" on storage.objects
   for select using (bucket_id = 'exotic-jetsky');
