@@ -82,8 +82,11 @@ create policy "rentas_insert" on rentas for insert with check (true);
 create policy "rentas_update" on rentas for update using (auth.role() = 'authenticated');
 create policy "rentas_delete" on rentas for delete using (auth.role() = 'authenticated');
 
--- Clientes: solo admin
-create policy "clientes_all" on clientes for all using (auth.role() = 'authenticated');
+-- Clientes: insert público (necesario para el formulario de reserva), resto solo admin
+create policy "clientes_insert" on clientes for insert with check (true);
+create policy "clientes_select" on clientes for select using (auth.role() = 'authenticated');
+create policy "clientes_update" on clientes for update using (auth.role() = 'authenticated');
+create policy "clientes_delete" on clientes for delete using (auth.role() = 'authenticated');
 
 -- Gastos: solo admin
 create policy "gastos_all" on gastos for all using (auth.role() = 'authenticated');

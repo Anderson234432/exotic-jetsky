@@ -95,22 +95,22 @@ export default function ReservarPage() {
     try {
       const fotoUrl = await subirArchivo(supabase, "adelantos", comprobante);
 
-      const { data: cliente, error: errorCliente } = await supabase
-        .from("clientes")
-        .insert({
-          nombre: form.nombre.trim(),
-          cedula: form.cedula.trim(),
-          telefono: form.telefono.trim(),
-        })
-        .select()
-        .single();
-      if (errorCliente || !cliente) throw errorCliente;
+      // Los clientes solo pueden leerse por el admin (RLS), así que generamos
+      // el id en el cliente para no depender de un select() tras el insert.
+      const clienteId = crypto.randomUUID();
+      const { error: errorCliente } = await supabase.from("clientes").insert({
+        id: clienteId,
+        nombre: form.nombre.trim(),
+        cedula: form.cedula.trim(),
+        telefono: form.telefono.trim(),
+      });
+      if (errorCliente) throw errorCliente;
 
       const { data: renta, error: errorRenta } = await supabase
         .from("rentas")
         .insert({
           jetski_id: form.jetskiId,
-          cliente_id: cliente.id,
+          cliente_id: clienteId,
           fecha: form.fecha,
           hora_inicio: form.horaInicio,
           horas_renta: horas,
