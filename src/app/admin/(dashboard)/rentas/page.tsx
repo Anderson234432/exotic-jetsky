@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "sonner";
+import { mensajeError } from "@/lib/errors";
 import type { EstadoRenta, Jetski, Renta } from "@/lib/types";
 
 type RentaConRelaciones = Renta & {
@@ -90,7 +91,7 @@ export default function AdminRentasPage() {
     marcarProcesando(renta.id, true);
     const { error } = await supabase.from("rentas").update({ estado }).eq("id", renta.id);
     if (error) {
-      toast.error("No se pudo actualizar la renta.");
+      toast.error(mensajeError(error));
     } else {
       actualizarRentaLocal(renta.id, { estado });
       toast.success("Renta actualizada.");
@@ -121,7 +122,7 @@ export default function AdminRentasPage() {
       .eq("id", renta.id);
 
     if (error) {
-      toast.error("No se pudo completar la renta.");
+      toast.error(mensajeError(error));
     } else {
       actualizarRentaLocal(renta.id, { estado: "completada" });
       toast.success("Renta completada.");
@@ -136,7 +137,7 @@ export default function AdminRentasPage() {
       .update({ deposito_devuelto: valor })
       .eq("id", renta.id);
     if (error) {
-      toast.error("No se pudo actualizar el depósito.");
+      toast.error(mensajeError(error));
       actualizarRentaLocal(renta.id, { deposito_devuelto: !valor });
     }
   }
@@ -155,8 +156,8 @@ export default function AdminRentasPage() {
       if (error) throw error;
       actualizarRentaLocal(renta.id, cambios);
       toast.success("Foto subida.");
-    } catch {
-      toast.error("No se pudo subir la foto.");
+    } catch (error) {
+      toast.error(mensajeError(error));
     }
     marcarProcesando(renta.id, false);
   }

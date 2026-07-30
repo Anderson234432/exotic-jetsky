@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { mensajeError } from "@/lib/errors";
 import type { Jetski } from "@/lib/types";
 
 export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) => void }) {
@@ -68,8 +69,8 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
       toast.success("Jetski agregado.");
       limpiar();
       setOpen(false);
-    } catch {
-      toast.error("No se pudo agregar el jetski.");
+    } catch (error) {
+      toast.error(mensajeError(error));
     }
     setGuardando(false);
   }

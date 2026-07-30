@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { mensajeError } from "@/lib/errors";
 import type { Jetski, Mantenimiento } from "@/lib/types";
 import { hoyRD } from "@/lib/format";
 
@@ -62,8 +63,8 @@ export function RegistrarMantenimientoDialog({
       setDescripcion("");
       setCosto("0");
       setOpen(false);
-    } catch {
-      toast.error("No se pudo registrar el mantenimiento.");
+    } catch (error) {
+      toast.error(mensajeError(error));
     }
     setGuardando(false);
   }

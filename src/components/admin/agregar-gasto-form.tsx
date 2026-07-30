@@ -15,6 +15,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { hoyRD } from "@/lib/format";
 import { toast } from "sonner";
+import { mensajeError } from "@/lib/errors";
 import type { Gasto, TipoGasto } from "@/lib/types";
 
 const TIPOS: { value: TipoGasto; label: string }[] = [
@@ -46,7 +47,7 @@ export function AgregarGastoForm({ onCreado }: { onCreado: (gasto: Gasto) => voi
       .single();
 
     if (error || !data) {
-      toast.error("No se pudo agregar el gasto.");
+      toast.error(mensajeError(error));
     } else {
       onCreado(data);
       toast.success("Gasto agregado.");

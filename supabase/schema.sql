@@ -96,3 +96,12 @@ create policy "mantenimientos_all" on mantenimientos for all using (auth.role() 
 
 -- Realtime: permite suscribirse a cambios en rentas (usado en /reserva/[id])
 alter publication supabase_realtime add table rentas;
+
+-- Storage: bucket "exotic-jetsky" — el toggle "Public" del bucket solo habilita
+-- lectura pública; el insert (subida de fotos) sigue bloqueado por RLS sin estas
+-- políticas. Insert público porque el formulario de reserva sube fotos sin sesión.
+create policy "exotic_jetsky_select" on storage.objects
+  for select using (bucket_id = 'exotic-jetsky');
+
+create policy "exotic_jetsky_insert" on storage.objects
+  for insert with check (bucket_id = 'exotic-jetsky');

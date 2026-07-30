@@ -17,6 +17,7 @@ import {
 import { formatFecha, formatMoneda } from "@/lib/format";
 import { horasHastaMantenimiento } from "@/lib/mantenimiento";
 import { toast } from "sonner";
+import { mensajeError } from "@/lib/errors";
 import type { EstadoJetski, Jetski, Mantenimiento, Renta } from "@/lib/types";
 
 const ESTADOS: EstadoJetski[] = ["disponible", "en_renta", "mantenimiento"];
@@ -59,7 +60,7 @@ export default function JetskiDetallePage() {
     setJetski({ ...jetski, estado });
     const { error } = await supabase.from("jetskis").update({ estado }).eq("id", jetski.id);
     if (error) {
-      toast.error("No se pudo actualizar el estado.");
+      toast.error(mensajeError(error));
       setJetski({ ...jetski, estado: anterior });
     }
   }

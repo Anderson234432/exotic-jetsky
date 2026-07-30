@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { mensajeError } from "@/lib/errors";
 
 const WHATSAPP_URL = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMERO}`;
 const TOTAL_PASOS = 3;
@@ -123,8 +124,8 @@ export default function ReservarPage() {
       if (errorRenta || !renta) throw errorRenta;
 
       router.push(`/reserva/${renta.id}`);
-    } catch {
-      toast.error("Ocurrió un error al enviar tu reserva. Intenta de nuevo.");
+    } catch (error) {
+      toast.error(mensajeError(error));
       setEnviando(false);
     }
   }
