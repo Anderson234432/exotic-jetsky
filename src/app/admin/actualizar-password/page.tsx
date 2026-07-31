@@ -40,12 +40,10 @@ export default function ActualizarPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-ej-crema px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-bold">
-            Exotic <span className="text-brand-accent">Jetsky</span>
-          </h1>
+          <h1 className="text-2xl font-medium text-ej-tinta">Exotic Jetsky</h1>
           <p className="text-sm text-muted-foreground">Nueva contraseña</p>
         </CardHeader>
         <CardContent>

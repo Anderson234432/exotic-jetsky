@@ -73,16 +73,16 @@ export default function JetskiDetallePage() {
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden py-0">
-        <div className="relative h-56 w-full bg-slate-100">
+        <div className="relative h-56 w-full bg-ej-agua">
           {jetski.foto_url ? (
             <Image src={jetski.foto_url} alt={jetski.nombre} fill className="object-cover" />
           ) : (
-            <div className="flex h-full items-center justify-center text-slate-400">Sin foto</div>
+            <div className="flex h-full items-center justify-center text-ej-tinta-mut">Sin foto</div>
           )}
         </div>
         <CardContent className="flex flex-col gap-4 pb-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">{jetski.nombre}</h1>
+            <h1 className="text-2xl font-medium">{jetski.nombre}</h1>
             <EstadoJetskiBadge estado={jetski.estado} />
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
@@ -100,7 +100,7 @@ export default function JetskiDetallePage() {
             </div>
             <div>
               <p className="text-muted-foreground">Próx. mantenimiento</p>
-              <p className={`font-medium ${horasParaMantenimiento <= 2 ? "text-red-600" : ""}`}>
+              <p className={`font-medium ${horasParaMantenimiento <= 2 ? "text-destructive" : ""}`}>
                 {horasParaMantenimiento <= 0 ? "0" : horasParaMantenimiento.toFixed(1)}h
               </p>
             </div>
@@ -134,7 +134,7 @@ export default function JetskiDetallePage() {
 
       <Card>
         <CardContent className="pt-6">
-          <h2 className="mb-4 font-bold">Historial de rentas</h2>
+          <h2 className="mb-4 font-medium">Historial de rentas</h2>
           {rentas.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sin rentas registradas.</p>
           ) : (
@@ -153,7 +153,7 @@ export default function JetskiDetallePage() {
 
       <Card>
         <CardContent className="pt-6">
-          <h2 className="mb-4 font-bold">Historial de mantenimientos</h2>
+          <h2 className="mb-4 font-medium">Historial de mantenimientos</h2>
           {mantenimientos.length === 0 ? (
             <p className="text-sm text-muted-foreground">Sin mantenimientos registrados.</p>
           ) : (

@@ -35,19 +35,19 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl font-medium">Dashboard</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Rentas de hoy</p>
-            <p className="text-3xl font-bold">{rentasHoy?.length ?? 0}</p>
+            <p className="text-3xl font-medium">{rentasHoy?.length ?? 0}</p>
           </CardContent>
         </Card>
-        <Card className={pendientes ? "border-red-300" : undefined}>
+        <Card className={pendientes ? "border-destructive/30" : undefined}>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Pendientes de confirmar</p>
-            <p className={`text-3xl font-bold ${pendientes ? "text-red-600" : ""}`}>
+            <p className={`text-3xl font-medium ${pendientes ? "text-destructive" : ""}`}>
               {pendientes ?? 0}
             </p>
           </CardContent>
@@ -55,20 +55,20 @@ export default async function AdminDashboardPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground">Ingresos del día</p>
-            <p className="text-3xl font-bold text-brand">{formatMoneda(ingresosHoy)}</p>
+            <p className="text-3xl font-medium text-ej-turquesa-tx">{formatMoneda(ingresosHoy)}</p>
           </CardContent>
         </Card>
       </div>
 
       {jetskisEnAlerta.length > 0 && (
-        <Card className="border-red-300 bg-red-50">
+        <Card className="rounded-[16px] border-transparent bg-ej-coral-sv">
           <CardContent className="pt-6">
-            <h2 className="mb-3 font-bold text-red-800">⚠️ Alertas de mantenimiento</h2>
+            <h2 className="mb-3 font-medium text-ej-coral-sv-tx">⚠️ Alertas de mantenimiento</h2>
             <ul className="flex flex-col gap-2">
               {jetskisEnAlerta.map((j) => {
                 const horas = horasHastaMantenimiento(j);
                 return (
-                  <li key={j.id} className="text-sm text-red-800">
+                  <li key={j.id} className="text-sm text-ej-coral-sv-tx">
                     <Link href={`/admin/jetskis/${j.id}`} className="underline">
                       {j.nombre}
                     </Link>{" "}
@@ -83,7 +83,7 @@ export default async function AdminDashboardPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <h2 className="mb-4 font-bold">Rentas de hoy</h2>
+          <h2 className="mb-4 font-medium">Rentas de hoy</h2>
           {!rentasHoy || rentasHoy.length === 0 ? (
             <p className="text-sm text-muted-foreground">No hay rentas programadas para hoy.</p>
           ) : (

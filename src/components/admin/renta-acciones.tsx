@@ -39,7 +39,7 @@ export function RentaAcciones({
           <Button
             variant="outline"
             size="sm"
-            className="h-9"
+            className="h-11"
             onClick={() => onVerFoto(renta.adelanto_foto_url!, "Comprobante de adelanto")}
           >
             Ver adelanto
@@ -50,7 +50,7 @@ export function RentaAcciones({
           <>
             <Button
               size="sm"
-              className="h-9 bg-brand hover:bg-brand/90 text-brand-foreground"
+              className="h-11 bg-brand hover:bg-brand/90 text-brand-foreground"
               disabled={procesando}
               onClick={onConfirmar}
             >
@@ -59,7 +59,7 @@ export function RentaAcciones({
             <Button
               size="sm"
               variant="destructive"
-              className="h-9"
+              className="h-11"
               disabled={procesando}
               onClick={onRechazar}
             >
@@ -71,7 +71,7 @@ export function RentaAcciones({
         {renta.estado === "confirmada" && (
           <Button
             size="sm"
-            className="h-9 bg-brand hover:bg-brand/90 text-brand-foreground"
+            className="h-11 bg-brand hover:bg-brand/90 text-brand-foreground"
             disabled={procesando}
             onClick={onCompletar}
           >
@@ -100,7 +100,7 @@ export function RentaAcciones({
               {renta.foto_antes_url && (
                 <button
                   type="button"
-                  className="text-xs text-brand underline"
+                  className="text-xs text-ej-turquesa-tx underline"
                   onClick={() => onVerFoto(renta.foto_antes_url!, "Foto antes de la renta")}
                 >
                   Ver
@@ -126,7 +126,7 @@ export function RentaAcciones({
               {renta.foto_despues_url && (
                 <button
                   type="button"
-                  className="text-xs text-brand underline"
+                  className="text-xs text-ej-turquesa-tx underline"
                   onClick={() => onVerFoto(renta.foto_despues_url!, "Foto después de la renta")}
                 >
                   Ver

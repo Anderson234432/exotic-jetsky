@@ -80,7 +80,7 @@ export default function AdminFinanzasPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Finanzas</h1>
+      <h1 className="text-2xl font-medium">Finanzas</h1>
 
       <Card>
         <CardContent className="flex flex-col gap-4 pt-6">
@@ -97,7 +97,7 @@ export default function AdminFinanzasPage() {
                 key={p.value}
                 variant={periodo === p.value ? undefined : "outline"}
                 className={cn(
-                  "h-10",
+                  "h-11",
                   periodo === p.value && "bg-brand hover:bg-brand/90 text-brand-foreground"
                 )}
                 onClick={() => setPeriodo(p.value)}
@@ -140,31 +140,31 @@ export default function AdminFinanzasPage() {
           <Card>
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">💰 Ingresos</p>
-              <p className="text-2xl font-bold">{formatMoneda(ingresos)}</p>
+              <p className="text-2xl font-medium">{formatMoneda(ingresos)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">⛽ Combustible</p>
-              <p className="text-2xl font-bold">{formatMoneda(combustible)}</p>
+              <p className="text-2xl font-medium">{formatMoneda(combustible)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">🔧 Mantenimiento</p>
-              <p className="text-2xl font-bold">{formatMoneda(mantenimiento)}</p>
+              <p className="text-2xl font-medium">{formatMoneda(mantenimiento)}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground">📦 Gastos generales</p>
-              <p className="text-2xl font-bold">{formatMoneda(general)}</p>
+              <p className="text-2xl font-medium">{formatMoneda(general)}</p>
             </CardContent>
           </Card>
-          <Card className="border-brand/30 bg-brand/5">
+          <Card className="border-transparent bg-ej-turquesa-sv">
             <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">✅ Ganancia neta</p>
-              <p className="text-2xl font-bold text-brand">{formatMoneda(gananciaNeta)}</p>
+              <p className="text-sm text-ej-turquesa-tx">✅ Ganancia neta</p>
+              <p className="text-2xl font-medium text-ej-turquesa-tx">{formatMoneda(gananciaNeta)}</p>
             </CardContent>
           </Card>
         </div>
@@ -174,7 +174,7 @@ export default function AdminFinanzasPage() {
 
       <Card>
         <CardContent className="pt-6">
-          <h2 className="mb-4 font-bold">Desglose de gastos</h2>
+          <h2 className="mb-4 font-medium">Desglose de gastos</h2>
           {gastos.length === 0 ? (
             <p className="text-sm text-muted-foreground">No hay gastos en este período.</p>
           ) : (

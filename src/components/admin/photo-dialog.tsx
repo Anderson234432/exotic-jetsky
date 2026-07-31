@@ -18,7 +18,7 @@ export function PhotoDialog({
       <DialogContent className="sm:max-w-md">
         <DialogTitle>{titulo}</DialogTitle>
         {url && (
-          <div className="relative h-80 w-full overflow-hidden rounded-lg bg-slate-100">
+          <div className="relative h-80 w-full overflow-hidden rounded-[20px] bg-ej-agua">
             <Image src={url} alt={titulo} fill className="object-contain" />
           </div>
         )}

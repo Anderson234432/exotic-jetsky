@@ -163,7 +163,7 @@ export default function AdminRentasPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Rentas</h1>
+      <h1 className="text-2xl font-medium">Rentas</h1>
 
       <Card>
         <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-3">
@@ -284,7 +284,7 @@ export default function AdminRentasPage() {
                   <p className="text-sm">
                     {formatFecha(r.fecha)} — {formatHora12h(r.hora_inicio)} ({r.horas_renta}h)
                   </p>
-                  <p className="font-semibold text-brand">
+                  <p className="font-semibold text-ej-turquesa-tx">
                     {formatMoneda((r.jetski?.precio_hora ?? 0) * r.horas_renta)}
                   </p>
                   <RentaAcciones

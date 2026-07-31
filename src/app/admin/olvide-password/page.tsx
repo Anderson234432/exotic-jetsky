@@ -27,17 +27,15 @@ export default function OlvidePasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F8FAFC] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-ej-crema px-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <h1 className="text-2xl font-bold">
-            Exotic <span className="text-brand-accent">Jetsky</span>
-          </h1>
+          <h1 className="text-2xl font-medium text-ej-tinta">Exotic Jetsky</h1>
           <p className="text-sm text-muted-foreground">Recuperar contraseña</p>
         </CardHeader>
         <CardContent>
           {enviado ? (
-            <p className="text-center text-sm text-slate-700">
+            <p className="text-center text-sm text-ej-tinta">
               Si el correo existe, te enviamos un enlace para restablecer tu contraseña.
               Revisa tu bandeja de entrada.
             </p>
@@ -62,7 +60,7 @@ export default function OlvidePasswordPage() {
               >
                 {loading ? "Enviando..." : "Enviar enlace de recuperación"}
               </Button>
-              <Link href="/admin/login" className="text-center text-sm text-brand underline">
+              <Link href="/admin/login" className="text-center text-sm text-ej-turquesa-tx underline">
                 Volver a iniciar sesión
               </Link>
             </form>

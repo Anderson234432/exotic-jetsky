@@ -185,16 +185,10 @@ export default function ReservarPage() {
   return (
     <div className="mx-auto flex min-h-screen max-w-lg flex-col px-4 py-8">
       <header className="mb-6 flex items-center justify-between">
-        <Link href="/" className="text-lg font-bold">
-          {nombreNegocio === NOMBRE_NEGOCIO_DEFECTO ? (
-            <>
-              Exotic <span className="text-brand-accent">Jetsky</span>
-            </>
-          ) : (
-            nombreNegocio
-          )}
+        <Link href="/" className="text-lg font-medium text-ej-tinta">
+          {nombreNegocio}
         </Link>
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-ej-tinta-mut">
           Paso {paso} de {TOTAL_PASOS}
         </span>
       </header>
@@ -204,7 +198,7 @@ export default function ReservarPage() {
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full ${
-              i < paso ? "bg-brand" : "bg-slate-200"
+              i < paso ? "bg-ej-turquesa" : "bg-ej-agua"
             }`}
           />
         ))}
@@ -214,12 +208,12 @@ export default function ReservarPage() {
         <CardContent className="flex flex-col gap-4 pt-6">
           {paso === 1 && (
             <>
-              <h1 className="text-xl font-bold">Datos personales</h1>
+              <h1 className="text-xl font-medium text-ej-tinta">Datos personales</h1>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="nombre">Nombre completo</Label>
                 <Input
                   id="nombre"
-                  className="h-11"
+                  className="h-12"
                   maxLength={100}
                   value={form.nombre}
                   onChange={(e) => update("nombre", e.target.value)}
@@ -230,7 +224,7 @@ export default function ReservarPage() {
                 <Input
                   id="cedula"
                   inputMode="numeric"
-                  className="h-11"
+                  className="h-12"
                   maxLength={13}
                   placeholder="001-1234567-8"
                   value={formatCedula(form.cedula)}
@@ -239,7 +233,7 @@ export default function ReservarPage() {
                   }
                 />
                 {form.cedula.length > 0 && !cedulaValida() && (
-                  <p className="text-sm text-red-600">La cédula debe tener 11 dígitos</p>
+                  <p className="text-sm text-destructive">La cédula debe tener 11 dígitos</p>
                 )}
               </div>
               <div className="flex flex-col gap-2">
@@ -248,7 +242,7 @@ export default function ReservarPage() {
                   id="telefono"
                   type="tel"
                   inputMode="tel"
-                  className="h-11"
+                  className="h-12"
                   maxLength={14}
                   placeholder="(809) 123-4567"
                   value={formatTelefono(form.telefono)}
@@ -257,17 +251,17 @@ export default function ReservarPage() {
                   }
                 />
                 {form.telefono.length > 0 && form.telefono.length < 10 && (
-                  <p className="text-sm text-red-600">El teléfono debe tener 10 dígitos</p>
+                  <p className="text-sm text-destructive">El teléfono debe tener 10 dígitos</p>
                 )}
                 {form.telefono.length === 10 &&
                   !PREFIJOS_TELEFONO.includes(form.telefono.slice(0, 3)) && (
-                    <p className="text-sm text-red-600">
+                    <p className="text-sm text-destructive">
                       El teléfono debe empezar con 809, 829 o 849
                     </p>
                   )}
               </div>
               <Button
-                className="h-11 bg-brand hover:bg-brand/90 text-brand-foreground"
+                className="h-12 rounded-full bg-ej-coral text-ej-coral-tx hover:bg-ej-coral/90"
                 disabled={!validarPaso1()}
                 onClick={() => setPaso(2)}
               >
@@ -278,7 +272,7 @@ export default function ReservarPage() {
 
           {paso === 2 && (
             <>
-              <h1 className="text-xl font-bold">Tu reserva</h1>
+              <h1 className="text-xl font-medium text-ej-tinta">Tu reserva</h1>
               <div className="flex flex-col gap-2">
                 <Label>Jetski</Label>
                 <Select
@@ -288,7 +282,7 @@ export default function ReservarPage() {
                     update("jetskiId", v ?? "");
                   }}
                 >
-                  <SelectTrigger className="h-11 w-full">
+                  <SelectTrigger className="h-12 w-full">
                     <SelectValue placeholder="Selecciona un jetski" />
                   </SelectTrigger>
                   <SelectContent>
@@ -305,7 +299,7 @@ export default function ReservarPage() {
                 <Input
                   id="fecha"
                   type="date"
-                  className="h-11"
+                  className="h-12"
                   min={hoyRD()}
                   value={form.fecha}
                   onChange={(e) => update("fecha", e.target.value)}
@@ -316,7 +310,7 @@ export default function ReservarPage() {
                 <Input
                   id="hora"
                   type="time"
-                  className="h-11"
+                  className="h-12"
                   value={form.horaInicio}
                   onChange={(e) => update("horaInicio", e.target.value)}
                 />
@@ -329,25 +323,29 @@ export default function ReservarPage() {
                   min={1}
                   max={24}
                   step={1}
-                  className="h-11"
+                  className="h-12"
                   value={form.horasRenta}
                   onChange={(e) => update("horasRenta", e.target.value)}
                 />
               </div>
               {jetskiSeleccionado && (
-                <div className="rounded-lg bg-brand/5 p-4 text-center">
-                  <p className="text-sm text-muted-foreground">Costo estimado</p>
-                  <p className="text-2xl font-bold text-brand">
+                <div className="rounded-[16px] bg-ej-turquesa-sv p-4 text-center">
+                  <p className="text-sm text-ej-turquesa-tx">Costo estimado</p>
+                  <p className="text-2xl font-medium text-ej-turquesa-tx">
                     {formatMoneda(costoEstimado)}
                   </p>
                 </div>
               )}
               <div className="flex gap-3">
-                <Button variant="outline" className="h-11 flex-1" onClick={() => setPaso(1)}>
+                <Button
+                  variant="ghost"
+                  className="h-12 flex-1 rounded-full bg-ej-turquesa-sv text-ej-turquesa-tx hover:bg-ej-turquesa-sv/70"
+                  onClick={() => setPaso(1)}
+                >
                   Atrás
                 </Button>
                 <Button
-                  className="h-11 flex-1 bg-brand hover:bg-brand/90 text-brand-foreground"
+                  className="h-12 flex-1 rounded-full bg-ej-coral text-ej-coral-tx hover:bg-ej-coral/90"
                   disabled={!validarPaso2()}
                   onClick={() => setPaso(3)}
                 >
@@ -364,15 +362,15 @@ export default function ReservarPage() {
 
           {paso === 3 && (
             <>
-              <h1 className="text-xl font-bold">Pago del adelanto</h1>
-              <div className="rounded-lg bg-brand-accent/10 p-4 text-sm text-slate-700">
+              <h1 className="text-xl font-medium text-ej-tinta">Pago del adelanto</h1>
+              <div className="rounded-[16px] bg-ej-turquesa-sv p-4 text-sm text-ej-tinta">
                 Para confirmar tu reserva, realiza el pago del adelanto y contáctanos
                 por{" "}
                 <a
                   href={`https://wa.me/${whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-brand underline"
+                  className="font-semibold text-ej-turquesa-tx underline"
                 >
                   WhatsApp
                 </a>{" "}
@@ -385,7 +383,7 @@ export default function ReservarPage() {
                   id="comprobante"
                   type="file"
                   accept="image/*"
-                  className="h-11 pt-2"
+                  className="h-12 pt-2"
                   onChange={(e) => setComprobante(e.target.files?.[0] ?? null)}
                 />
               </div>
@@ -403,11 +401,15 @@ export default function ReservarPage() {
                 </Label>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" className="h-11 flex-1" onClick={() => setPaso(2)}>
+                <Button
+                  variant="ghost"
+                  className="h-12 flex-1 rounded-full bg-ej-turquesa-sv text-ej-turquesa-tx hover:bg-ej-turquesa-sv/70"
+                  onClick={() => setPaso(2)}
+                >
                   Atrás
                 </Button>
                 <Button
-                  className="h-11 flex-1 bg-brand hover:bg-brand/90 text-brand-foreground"
+                  className="h-12 flex-1 rounded-full bg-ej-coral text-ej-coral-tx hover:bg-ej-coral/90"
                   disabled={enviando}
                   onClick={handleSubmit}
                 >

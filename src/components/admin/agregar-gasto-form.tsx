@@ -61,7 +61,7 @@ export function AgregarGastoForm({ onCreado }: { onCreado: (gasto: Gasto) => voi
   return (
     <Card>
       <CardContent className="pt-6">
-        <h2 className="mb-4 font-bold">Agregar gasto</h2>
+        <h2 className="mb-4 font-medium">Agregar gasto</h2>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-4">
           <div className="flex flex-col gap-2">
             <Label>Tipo</Label>

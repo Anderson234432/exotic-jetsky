@@ -10,10 +10,10 @@ const ESTADO_RENTA_LABEL: Record<EstadoRenta, string> = {
 };
 
 const ESTADO_RENTA_CLASE: Record<EstadoRenta, string> = {
-  en_espera: "bg-amber-100 text-amber-800",
-  confirmada: "bg-green-100 text-green-800",
-  rechazada: "bg-red-100 text-red-800",
-  completada: "bg-slate-200 text-slate-700",
+  en_espera: "bg-ej-coral-sv text-ej-coral-sv-tx",
+  confirmada: "bg-ej-turquesa-sv text-ej-turquesa-tx",
+  rechazada: "bg-[#FCEBEB] text-[#A32D2D]",
+  completada: "bg-ej-agua text-ej-tinta-sv",
 };
 
 export function EstadoRentaBadge({ estado }: { estado: EstadoRenta }) {
@@ -31,9 +31,9 @@ const ESTADO_JETSKI_LABEL: Record<EstadoJetski, string> = {
 };
 
 const ESTADO_JETSKI_CLASE: Record<EstadoJetski, string> = {
-  disponible: "bg-green-100 text-green-800",
-  en_renta: "bg-blue-100 text-blue-800",
-  mantenimiento: "bg-red-100 text-red-800",
+  disponible: "bg-ej-turquesa-sv text-ej-turquesa-tx",
+  en_renta: "bg-ej-coral-sv text-ej-coral-sv-tx",
+  mantenimiento: "bg-[#FCEBEB] text-[#A32D2D]",
 };
 
 export function EstadoJetskiBadge({ estado }: { estado: EstadoJetski }) {

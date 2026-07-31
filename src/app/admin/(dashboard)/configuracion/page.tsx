@@ -78,13 +78,13 @@ export default function AdminConfiguracionPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Configuración</h1>
+      <h1 className="text-2xl font-medium">Configuración</h1>
 
       <Card>
         <CardContent className="flex flex-col gap-4 pt-6">
           <div className="flex flex-col gap-2">
             <Label>Foto de portada</Label>
-            <div className="relative h-48 w-full overflow-hidden rounded-lg bg-slate-100">
+            <div className="relative h-48 w-full overflow-hidden rounded-[20px] bg-ej-agua">
               {(foto ? URL.createObjectURL(foto) : fotoUrl) ? (
                 <Image
                   src={foto ? URL.createObjectURL(foto) : fotoUrl!}
@@ -94,7 +94,7 @@ export default function AdminConfiguracionPage() {
                   unoptimized={!!foto}
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-slate-400">
+                <div className="flex h-full items-center justify-center text-ej-tinta-mut">
                   Sin foto — se muestra un fondo neutro en el sitio
                 </div>
               )}

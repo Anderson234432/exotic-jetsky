@@ -51,7 +51,7 @@ export default function AdminClientesPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">Clientes</h1>
+      <h1 className="text-2xl font-medium">Clientes</h1>
 
       {cargando ? (
         <p className="text-sm text-muted-foreground">Cargando...</p>
@@ -97,7 +97,7 @@ export default function AdminClientesPage() {
                   <p className="font-semibold">{c.nombre}</p>
                   <p className="text-sm text-muted-foreground">{c.cedula}</p>
                   <p className="text-sm text-muted-foreground">{c.telefono}</p>
-                  <p className="text-sm font-medium text-brand">
+                  <p className="text-sm font-medium text-ej-turquesa-tx">
                     {rentasDe(c.id).length} renta(s)
                   </p>
                 </CardContent>

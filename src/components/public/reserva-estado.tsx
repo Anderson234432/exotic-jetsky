@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { formatFecha, formatHora12h } from "@/lib/format";
+import { NOMBRE_NEGOCIO_DEFECTO } from "@/lib/configuracion";
 import type { EstadoRenta } from "@/lib/types";
 
 const WHATSAPP_URL = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMERO}`;
@@ -63,63 +64,65 @@ export function ReservaEstado({ id }: { id: string }) {
 
   if (cargando) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-muted-foreground">Cargando...</p>
+      <div className="flex min-h-screen items-center justify-center bg-ej-crema">
+        <p className="text-ej-tinta-mut">Cargando...</p>
       </div>
     );
   }
 
   if (!renta) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
-        <p className="text-lg font-semibold">No encontramos esta reserva.</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ej-crema px-4 text-center">
+        <p className="text-lg font-medium text-ej-tinta">No encontramos esta reserva.</p>
         <WhatsappButton />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-4 py-8 text-center">
-      <Link href="/" className="text-lg font-bold">
-        Exotic <span className="text-brand-accent">Jetsky</span>
-      </Link>
+    <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center bg-ej-crema px-4 py-8 text-center">
+      <div className="flex w-full flex-col items-center gap-6 rounded-[20px] bg-ej-blanco p-8">
+        <Link href="/" className="text-lg font-medium text-ej-tinta">
+          {NOMBRE_NEGOCIO_DEFECTO}
+        </Link>
 
-      {renta.estado === "en_espera" && (
-        <div className="flex flex-col items-center gap-4 rounded-xl bg-amber-50 p-8">
-          <div className="size-10 animate-spin rounded-full border-4 border-amber-300 border-t-amber-600" />
-          <p className="font-semibold text-amber-800">
-            Tu reserva está siendo revisada. Te confirmaremos pronto.
-          </p>
-        </div>
-      )}
+        {renta.estado === "en_espera" && (
+          <div className="flex flex-col items-center gap-4 rounded-[16px] bg-ej-coral-sv p-8">
+            <div className="size-10 animate-spin rounded-full border-4 border-ej-coral-sv-tx/20 border-t-ej-coral-sv-tx" />
+            <p className="font-medium text-ej-coral-sv-tx">
+              Tu reserva está siendo revisada. Te confirmaremos pronto.
+            </p>
+          </div>
+        )}
 
-      {renta.estado === "confirmada" && (
-        <div className="flex flex-col items-center gap-3 rounded-xl bg-green-50 p-8">
-          <span className="text-4xl">✅</span>
-          <p className="font-semibold text-green-800">¡Reserva confirmada!</p>
-          <p className="text-green-700">
-            {renta.jetski?.nombre} — {formatFecha(renta.fecha)} a las{" "}
-            {formatHora12h(renta.hora_inicio)}
-          </p>
-        </div>
-      )}
+        {renta.estado === "confirmada" && (
+          <div className="flex flex-col items-center gap-3 rounded-[16px] bg-ej-turquesa-sv p-8">
+            <span className="text-4xl">✅</span>
+            <p className="font-medium text-ej-turquesa-tx">¡Reserva confirmada!</p>
+            <p className="text-ej-turquesa-tx">
+              {renta.jetski?.nombre} — {formatFecha(renta.fecha)} a las{" "}
+              {formatHora12h(renta.hora_inicio)}
+            </p>
+          </div>
+        )}
 
-      {renta.estado === "rechazada" && (
-        <div className="flex flex-col items-center gap-3 rounded-xl bg-red-50 p-8">
-          <span className="text-4xl">❌</span>
-          <p className="font-semibold text-red-800">Tu reserva fue rechazada.</p>
-          <p className="text-red-700">Contáctanos por WhatsApp para más información.</p>
-        </div>
-      )}
+        {renta.estado === "rechazada" && (
+          <div className="flex flex-col items-center gap-3 rounded-[16px] bg-[#FCEBEB] p-8">
+            <span className="text-4xl">❌</span>
+            <p className="font-medium text-[#A32D2D]">Tu reserva fue rechazada.</p>
+            <p className="text-[#A32D2D]">Contáctanos por WhatsApp para más información.</p>
+          </div>
+        )}
 
-      {renta.estado === "completada" && (
-        <div className="flex flex-col items-center gap-3 rounded-xl bg-brand/5 p-8">
-          <span className="text-4xl">🏁</span>
-          <p className="font-semibold text-brand">Renta completada. ¡Gracias por elegirnos!</p>
-        </div>
-      )}
+        {renta.estado === "completada" && (
+          <div className="flex flex-col items-center gap-3 rounded-[16px] bg-ej-turquesa-sv p-8">
+            <span className="text-4xl">🏁</span>
+            <p className="font-medium text-ej-turquesa-tx">Renta completada. ¡Gracias por elegirnos!</p>
+          </div>
+        )}
 
-      <WhatsappButton />
+        <WhatsappButton />
+      </div>
     </div>
   );
 }
@@ -130,7 +133,7 @@ function WhatsappButton() {
       href={WHATSAPP_URL}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex h-11 items-center gap-2 rounded-lg bg-[#25D366] px-5 text-sm font-semibold text-white"
+      className="inline-flex h-11 items-center gap-2 rounded-full bg-ej-turquesa px-5 text-sm font-medium text-ej-turquesa-tx"
     >
       WhatsApp
     </a>

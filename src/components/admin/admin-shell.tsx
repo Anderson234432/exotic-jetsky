@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { createClient } from "@/lib/supabase/client";
+import { NOMBRE_NEGOCIO_DEFECTO } from "@/lib/configuracion";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -40,10 +41,10 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             href={href}
             onClick={onNavigate}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              "flex items-center gap-3 rounded-[16px] px-3 py-2.5 text-sm font-medium transition-colors",
               active
-                ? "bg-brand text-brand-foreground"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-ej-turquesa-sv text-ej-turquesa-tx"
+                : "text-ej-tinta-sv hover:bg-ej-turquesa-sv/50"
             )}
           >
             <Icon className="size-5" />
@@ -67,11 +68,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-ej-crema">
       {/* Sidebar desktop */}
-      <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:flex md:w-64 md:flex-col border-r bg-white">
-        <div className="flex h-16 items-center px-6 font-bold text-lg">
-          Exotic <span className="text-brand-accent ml-1">Jetsky</span>
+      <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:flex md:w-64 md:flex-col border-r border-ej-borde bg-ej-blanco">
+        <div className="flex h-16 items-center px-6 font-medium text-lg text-ej-tinta">
+          {NOMBRE_NEGOCIO_DEFECTO}
         </div>
         <div className="flex-1 px-3">
           <NavLinks />
@@ -79,7 +80,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="p-3">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3 text-slate-600 h-11"
+            className="w-full justify-start gap-3 text-ej-tinta-sv h-11"
             onClick={handleLogout}
           >
             <LogOut className="size-5" />
@@ -89,10 +90,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Header mobile */}
-      <header className="flex h-16 items-center justify-between border-b bg-white px-4 md:hidden sticky top-0 z-30">
-        <div className="font-bold text-lg">
-          Exotic <span className="text-brand-accent ml-1">Jetsky</span>
-        </div>
+      <header className="flex h-16 items-center justify-between border-b border-ej-borde bg-ej-blanco px-4 md:hidden sticky top-0 z-30">
+        <div className="font-medium text-lg text-ej-tinta">{NOMBRE_NEGOCIO_DEFECTO}</div>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
             render={<Button variant="outline" size="icon" className="size-11" />}
@@ -100,14 +99,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <Menu className="size-5" />
           </SheetTrigger>
           <SheetContent side="left" className="w-64 p-0">
-            <div className="flex h-16 items-center px-6 font-bold text-lg border-b">
-              Exotic <span className="text-brand-accent ml-1">Jetsky</span>
+            <div className="flex h-16 items-center px-6 font-medium text-lg text-ej-tinta border-b border-ej-borde">
+              {NOMBRE_NEGOCIO_DEFECTO}
             </div>
             <div className="flex flex-col justify-between h-[calc(100%-4rem)] p-3">
               <NavLinks onNavigate={() => setOpen(false)} />
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-3 text-slate-600 h-11"
+                className="w-full justify-start gap-3 text-ej-tinta-sv h-11"
                 onClick={handleLogout}
               >
                 <LogOut className="size-5" />
