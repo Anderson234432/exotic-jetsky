@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatMoneda } from "@/lib/format";
-import { NOMBRE_NEGOCIO_DEFECTO, REGLAS_DEFECTO } from "@/lib/configuracion";
+import { NOMBRE_NEGOCIO_DEFECTO, SUBTITULO_DEFECTO, REGLAS_DEFECTO } from "@/lib/configuracion";
 import type { Jetski } from "@/lib/types";
 
 export default async function HomePage() {
@@ -19,6 +19,7 @@ export default async function HomePage() {
   ]);
 
   const nombreNegocio = config?.nombre_negocio || NOMBRE_NEGOCIO_DEFECTO;
+  const subtitulo = config?.subtitulo || SUBTITULO_DEFECTO;
   const whatsappUrl = `https://wa.me/${config?.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMERO}`;
   const reglas = (config?.reglas || REGLAS_DEFECTO).split("\n").filter(Boolean);
 
@@ -62,9 +63,7 @@ export default async function HomePage() {
               </>
             )}
           </h1>
-          <p className="mt-4 text-lg text-white/90 md:text-xl">
-            Renta jetskis de lujo en las mejores playas de República Dominicana.
-          </p>
+          <p className="mt-4 text-lg text-white/90 md:text-xl">{subtitulo}</p>
           <Button
             render={<Link href="/reservar" />}
             size="lg"

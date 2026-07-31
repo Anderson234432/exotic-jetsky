@@ -5,7 +5,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { subirArchivo } from "@/lib/storage";
 import { mensajeError } from "@/lib/errors";
-import { NOMBRE_NEGOCIO_DEFECTO, REGLAS_DEFECTO } from "@/lib/configuracion";
+import { NOMBRE_NEGOCIO_DEFECTO, SUBTITULO_DEFECTO, REGLAS_DEFECTO } from "@/lib/configuracion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,7 @@ export default function AdminConfiguracionPage() {
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [foto, setFoto] = useState<File | null>(null);
   const [nombreNegocio, setNombreNegocio] = useState("");
+  const [subtitulo, setSubtitulo] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [reglas, setReglas] = useState("");
 
@@ -34,6 +35,7 @@ export default function AdminConfiguracionPage() {
         if (data) {
           setFotoUrl(data.foto_portada_url);
           setNombreNegocio(data.nombre_negocio ?? "");
+          setSubtitulo(data.subtitulo ?? "");
           setWhatsapp(data.whatsapp ?? "");
           setReglas(data.reglas ?? "");
         }
@@ -54,6 +56,7 @@ export default function AdminConfiguracionPage() {
         .update({
           foto_portada_url: nuevaFotoUrl,
           nombre_negocio: nombreNegocio.trim() || null,
+          subtitulo: subtitulo.trim() || null,
           whatsapp: whatsapp.trim() || null,
           reglas: reglas.trim() || null,
           updated_at: new Date().toISOString(),
@@ -114,6 +117,18 @@ export default function AdminConfiguracionPage() {
               maxLength={100}
               value={nombreNegocio}
               onChange={(e) => setNombreNegocio(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="subtituloConfig">Subtítulo de la portada</Label>
+            <Textarea
+              id="subtituloConfig"
+              placeholder={SUBTITULO_DEFECTO}
+              rows={2}
+              maxLength={200}
+              value={subtitulo}
+              onChange={(e) => setSubtitulo(e.target.value)}
             />
           </div>
 

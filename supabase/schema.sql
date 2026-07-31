@@ -184,6 +184,8 @@ create table if not exists configuracion (
   constraint configuracion_una_fila check (id)
 );
 
+alter table configuracion add column if not exists subtitulo text;
+
 alter table configuracion enable row level security;
 
 drop policy if exists "configuracion_select" on configuracion;
@@ -197,16 +199,23 @@ grant update on configuracion to authenticated;
 
 -- Fila única con los valores actuales como default (no cambia nada visible
 -- hasta que el admin suba una foto o edite algo desde el panel).
-insert into configuracion (id, nombre_negocio, reglas)
+insert into configuracion (id, nombre_negocio, subtitulo, reglas)
 values (
   true,
   'Exotic Jetsky',
+  'Renta jetskis de lujo en las mejores playas de República Dominicana.',
   'El cliente es responsable de cualquier daño ocasionado al jetski durante la renta.
 Se requiere un adelanto para confirmar la reserva.
 Cancelaciones con menos de 24 horas de anticipación no tienen reembolso.
 Se debe presentar cédula de identidad al momento de la renta.'
 )
 on conflict (id) do nothing;
+
+-- Rellena el subtítulo con el texto actual para filas ya existentes
+-- (creadas antes de que existiera la columna) que aún no tengan uno.
+update configuracion
+set subtitulo = 'Renta jetskis de lujo en las mejores playas de República Dominicana.'
+where subtitulo is null;
 
 -- Storage: agrega la carpeta "configuracion/" a las permitidas para admin
 -- (foto de portada). Reemplaza la política anterior que solo tenía

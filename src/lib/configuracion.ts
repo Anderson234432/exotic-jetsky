@@ -1,5 +1,8 @@
 export const NOMBRE_NEGOCIO_DEFECTO = "Exotic Jetsky";
 
+export const SUBTITULO_DEFECTO =
+  "Renta jetskis de lujo en las mejores playas de República Dominicana.";
+
 export const REGLAS_DEFECTO = [
   "El cliente es responsable de cualquier daño ocasionado al jetski durante la renta.",
   "Se requiere un adelanto para confirmar la reserva.",

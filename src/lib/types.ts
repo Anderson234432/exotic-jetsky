@@ -71,6 +71,7 @@ export interface Configuracion {
   id: boolean;
   foto_portada_url: string | null;
   nombre_negocio: string | null;
+  subtitulo: string | null;
   whatsapp: string | null;
   reglas: string | null;
   updated_at: string;
