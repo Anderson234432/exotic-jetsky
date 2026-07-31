@@ -3,7 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Menu, LayoutDashboard, CalendarRange, Ship, Wallet, Users, LogOut } from "lucide-react";
+import {
+  Menu,
+  LayoutDashboard,
+  CalendarRange,
+  Ship,
+  Wallet,
+  Users,
+  Settings,
+  LogOut,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { createClient } from "@/lib/supabase/client";
@@ -15,6 +24,7 @@ const NAV_ITEMS = [
   { href: "/admin/jetskis", label: "Jetskis", icon: Ship },
   { href: "/admin/finanzas", label: "Finanzas", icon: Wallet },
   { href: "/admin/clientes", label: "Clientes", icon: Users },
+  { href: "/admin/configuracion", label: "Configuración", icon: Settings },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {

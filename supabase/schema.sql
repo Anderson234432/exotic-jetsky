@@ -167,3 +167,55 @@ as $$
 $$;
 
 grant execute on function sumar_horas_maquina(uuid, numeric) to authenticated;
+
+-- ═══════════════════════════════════════════════════════════════
+-- CONFIGURACIÓN DEL SITIO — foto de portada, nombre, whatsapp, reglas
+-- editables desde /admin/configuracion. Re-ejecutable.
+-- ═══════════════════════════════════════════════════════════════
+
+-- id boolean + check(id) garantiza que solo pueda existir UNA fila.
+create table if not exists configuracion (
+  id boolean primary key default true,
+  foto_portada_url text,
+  nombre_negocio text,
+  whatsapp text,
+  reglas text,
+  updated_at timestamptz default now(),
+  constraint configuracion_una_fila check (id)
+);
+
+alter table configuracion enable row level security;
+
+drop policy if exists "configuracion_select" on configuracion;
+drop policy if exists "configuracion_update" on configuracion;
+
+create policy "configuracion_select" on configuracion for select using (true);
+create policy "configuracion_update" on configuracion for update using (auth.role() = 'authenticated');
+
+grant select on configuracion to anon, authenticated;
+grant update on configuracion to authenticated;
+
+-- Fila única con los valores actuales como default (no cambia nada visible
+-- hasta que el admin suba una foto o edite algo desde el panel).
+insert into configuracion (id, nombre_negocio, reglas)
+values (
+  true,
+  'Exotic Jetsky',
+  'El cliente es responsable de cualquier daño ocasionado al jetski durante la renta.
+Se requiere un adelanto para confirmar la reserva.
+Cancelaciones con menos de 24 horas de anticipación no tienen reembolso.
+Se debe presentar cédula de identidad al momento de la renta.'
+)
+on conflict (id) do nothing;
+
+-- Storage: agrega la carpeta "configuracion/" a las permitidas para admin
+-- (foto de portada). Reemplaza la política anterior que solo tenía
+-- 'jetskis' y 'rentas'.
+drop policy if exists "exotic_jetsky_insert_admin" on storage.objects;
+create policy "exotic_jetsky_insert_admin" on storage.objects
+  for insert
+  with check (
+    bucket_id = 'exotic-jetsky'
+    and auth.role() = 'authenticated'
+    and (storage.foldername(name))[1] in ('jetskis', 'rentas', 'configuracion')
+  );

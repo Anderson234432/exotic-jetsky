@@ -67,6 +67,15 @@ export interface RentaConRelaciones extends Renta {
   cliente: Cliente | null;
 }
 
+export interface Configuracion {
+  id: boolean;
+  foto_portada_url: string | null;
+  nombre_negocio: string | null;
+  whatsapp: string | null;
+  reglas: string | null;
+  updated_at: string;
+}
+
 type Materializar<T> = { [K in keyof T]: T[K] };
 
 type TablaGenerica<Row, Insert> = {
@@ -96,6 +105,7 @@ export interface Database {
         Mantenimiento,
         Partial<Mantenimiento> & { horas_en_mantenimiento: number }
       >;
+      configuracion: TablaGenerica<Configuracion, Partial<Configuracion>>;
     };
     Views: Record<string, never>;
     Functions: {

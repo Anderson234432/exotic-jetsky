@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputMoneda } from "@/components/ui/input-moneda";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -79,12 +80,11 @@ export function AgregarGastoForm({ onCreado }: { onCreado: (gasto: Gasto) => voi
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="monto">Monto (RD$)</Label>
-            <Input
+            <InputMoneda
               id="monto"
-              type="number"
               className="h-11"
               value={monto}
-              onChange={(e) => setMonto(e.target.value)}
+              onValueChange={setMonto}
               required
             />
           </div>

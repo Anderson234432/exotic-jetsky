@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { subirArchivo } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputMoneda } from "@/components/ui/input-moneda";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -17,6 +18,19 @@ import {
 import { toast } from "sonner";
 import { mensajeError } from "@/lib/errors";
 import type { Jetski } from "@/lib/types";
+
+const ANIO_MINIMO = 1990;
+const ANIO_MAXIMO = new Date().getFullYear() + 1;
+
+function soloDigitos(texto: string, permitirDecimal = false): string {
+  const patron = permitirDecimal ? /[^0-9.]/g : /[^0-9]/g;
+  let limpio = texto.replace(patron, "");
+  if (permitirDecimal) {
+    const partes = limpio.split(".");
+    if (partes.length > 2) limpio = partes[0] + "." + partes.slice(1).join("");
+  }
+  return limpio;
+}
 
 export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) => void }) {
   const supabase = createClient();
@@ -43,6 +57,13 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
 
   async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const anioNumero = Number(anio);
+    if (!anioNumero || anioNumero < ANIO_MINIMO || anioNumero > ANIO_MAXIMO) {
+      toast.error(`El año debe estar entre ${ANIO_MINIMO} y ${ANIO_MAXIMO}.`);
+      return;
+    }
+
     setGuardando(true);
     try {
       const fotoUrl = foto ? await subirArchivo(supabase, "jetskis", foto) : null;
@@ -55,7 +76,7 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
           foto_url: fotoUrl,
           precio_compra: Number(precioCompra) || 0,
           precio_hora: Number(precioHora) || 0,
-          anio: Number(anio) || new Date().getFullYear(),
+          anio: anioNumero,
           horas_maquina: horas,
           horas_ultimo_mantenimiento: horas,
           horas_mantenimiento_intervalo: Number(intervalo) || 15,
@@ -108,23 +129,21 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="precioCompra">Precio de compra (RD$)</Label>
-              <Input
+              <InputMoneda
                 id="precioCompra"
-                type="number"
                 className="h-11"
                 value={precioCompra}
-                onChange={(e) => setPrecioCompra(e.target.value)}
+                onValueChange={setPrecioCompra}
                 required
               />
             </div>
             <div className="flex flex-col gap-2">
               <Label htmlFor="precioHora">Precio por hora (RD$)</Label>
-              <Input
+              <InputMoneda
                 id="precioHora"
-                type="number"
                 className="h-11"
                 value={precioHora}
-                onChange={(e) => setPrecioHora(e.target.value)}
+                onValueChange={setPrecioHora}
                 required
               />
             </div>
@@ -134,10 +153,11 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
               <Label htmlFor="anio">Año</Label>
               <Input
                 id="anio"
-                type="number"
+                inputMode="numeric"
                 className="h-11"
+                maxLength={4}
                 value={anio}
-                onChange={(e) => setAnio(e.target.value)}
+                onChange={(e) => setAnio(soloDigitos(e.target.value))}
                 required
               />
             </div>
@@ -145,10 +165,10 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
               <Label htmlFor="horasMaquina">Horas actuales</Label>
               <Input
                 id="horasMaquina"
-                type="number"
+                inputMode="decimal"
                 className="h-11"
                 value={horasMaquina}
-                onChange={(e) => setHorasMaquina(e.target.value)}
+                onChange={(e) => setHorasMaquina(soloDigitos(e.target.value, true))}
                 required
               />
             </div>
@@ -157,10 +177,10 @@ export function AgregarJetskiDialog({ onCreado }: { onCreado: (jetski: Jetski) =
             <Label htmlFor="intervalo">Intervalo de mantenimiento (horas)</Label>
             <Input
               id="intervalo"
-              type="number"
+              inputMode="numeric"
               className="h-11"
               value={intervalo}
-              onChange={(e) => setIntervalo(e.target.value)}
+              onChange={(e) => setIntervalo(soloDigitos(e.target.value))}
               required
             />
           </div>

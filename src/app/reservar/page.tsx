@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { subirArchivo } from "@/lib/storage";
-import { formatMoneda, hoyRD } from "@/lib/format";
+import { formatCedula, formatMoneda, formatTelefono, hoyRD } from "@/lib/format";
+import { NOMBRE_NEGOCIO_DEFECTO } from "@/lib/configuracion";
 import type { Jetski } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,6 @@ import {
 import { toast } from "sonner";
 import { mensajeError } from "@/lib/errors";
 
-const WHATSAPP_URL = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMERO}`;
 const TOTAL_PASOS = 3;
 
 type JetskiPublico = Pick<Jetski, "id" | "nombre" | "precio_hora">;
@@ -58,6 +58,8 @@ export default function ReservarPage() {
   const [form, setForm] = useState<FormState>(initialState);
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [nombreNegocio, setNombreNegocio] = useState(NOMBRE_NEGOCIO_DEFECTO);
+  const [whatsapp, setWhatsapp] = useState(process.env.NEXT_PUBLIC_WHATSAPP_NUMERO ?? "");
 
   // DEBUG TEMPORAL — se loguea en CADA render del componente, sin excepción.
   // Solo en el navegador (esta página se pre-renderiza en el build también).
@@ -73,6 +75,16 @@ export default function ReservarPage() {
       .eq("estado", "disponible")
       .order("nombre")
       .then(({ data }) => setJetskis(data ?? []));
+
+    supabase
+      .from("configuracion")
+      .select("nombre_negocio, whatsapp")
+      .eq("id", true)
+      .single()
+      .then(({ data }) => {
+        if (data?.nombre_negocio) setNombreNegocio(data.nombre_negocio);
+        if (data?.whatsapp) setWhatsapp(data.whatsapp);
+      });
   }, [supabase]);
 
   // DEBUG TEMPORAL — quitar después de diagnosticar el bug del select.
@@ -88,8 +100,18 @@ export default function ReservarPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
+  const PREFIJOS_TELEFONO = ["809", "829", "849"];
+
+  function cedulaValida() {
+    return form.cedula.length === 11;
+  }
+
+  function telefonoValido() {
+    return form.telefono.length === 10 && PREFIJOS_TELEFONO.includes(form.telefono.slice(0, 3));
+  }
+
   function validarPaso1() {
-    return form.nombre.trim() && form.cedula.trim() && form.telefono.trim();
+    return form.nombre.trim() && cedulaValida() && telefonoValido();
   }
 
   function validarPaso2() {
@@ -164,7 +186,13 @@ export default function ReservarPage() {
     <div className="mx-auto flex min-h-screen max-w-lg flex-col px-4 py-8">
       <header className="mb-6 flex items-center justify-between">
         <Link href="/" className="text-lg font-bold">
-          Exotic <span className="text-brand-accent">Jetsky</span>
+          {nombreNegocio === NOMBRE_NEGOCIO_DEFECTO ? (
+            <>
+              Exotic <span className="text-brand-accent">Jetsky</span>
+            </>
+          ) : (
+            nombreNegocio
+          )}
         </Link>
         <span className="text-sm text-muted-foreground">
           Paso {paso} de {TOTAL_PASOS}
@@ -201,22 +229,42 @@ export default function ReservarPage() {
                 <Label htmlFor="cedula">Cédula</Label>
                 <Input
                   id="cedula"
+                  inputMode="numeric"
                   className="h-11"
-                  maxLength={20}
-                  value={form.cedula}
-                  onChange={(e) => update("cedula", e.target.value)}
+                  maxLength={13}
+                  placeholder="001-1234567-8"
+                  value={formatCedula(form.cedula)}
+                  onChange={(e) =>
+                    update("cedula", e.target.value.replace(/\D/g, "").slice(0, 11))
+                  }
                 />
+                {form.cedula.length > 0 && !cedulaValida() && (
+                  <p className="text-sm text-red-600">La cédula debe tener 11 dígitos</p>
+                )}
               </div>
               <div className="flex flex-col gap-2">
                 <Label htmlFor="telefono">Teléfono</Label>
                 <Input
                   id="telefono"
                   type="tel"
+                  inputMode="tel"
                   className="h-11"
-                  maxLength={20}
-                  value={form.telefono}
-                  onChange={(e) => update("telefono", e.target.value)}
+                  maxLength={14}
+                  placeholder="(809) 123-4567"
+                  value={formatTelefono(form.telefono)}
+                  onChange={(e) =>
+                    update("telefono", e.target.value.replace(/\D/g, "").slice(0, 10))
+                  }
                 />
+                {form.telefono.length > 0 && form.telefono.length < 10 && (
+                  <p className="text-sm text-red-600">El teléfono debe tener 10 dígitos</p>
+                )}
+                {form.telefono.length === 10 &&
+                  !PREFIJOS_TELEFONO.includes(form.telefono.slice(0, 3)) && (
+                    <p className="text-sm text-red-600">
+                      El teléfono debe empezar con 809, 829 o 849
+                    </p>
+                  )}
               </div>
               <Button
                 className="h-11 bg-brand hover:bg-brand/90 text-brand-foreground"
@@ -321,7 +369,7 @@ export default function ReservarPage() {
                 Para confirmar tu reserva, realiza el pago del adelanto y contáctanos
                 por{" "}
                 <a
-                  href={WHATSAPP_URL}
+                  href={`https://wa.me/${whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-brand underline"

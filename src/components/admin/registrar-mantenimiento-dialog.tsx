@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputMoneda } from "@/components/ui/input-moneda";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -110,12 +111,11 @@ export function RegistrarMantenimientoDialog({
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="costo">Costo (RD$)</Label>
-            <Input
+            <InputMoneda
               id="costo"
-              type="number"
               className="h-11"
               value={costo}
-              onChange={(e) => setCosto(e.target.value)}
+              onValueChange={setCosto}
             />
           </div>
           <DialogFooter>

@@ -33,3 +33,21 @@ export function formatHora12h(hora: string): string {
   const h12 = h % 12 === 0 ? 12 : h % 12;
   return `${h12}:${m.toString().padStart(2, "0")} ${periodo}`;
 }
+
+export function formatCedula(digitos: string): string {
+  const d = digitos.slice(0, 11);
+  let resultado = d.slice(0, 3);
+  if (d.length > 3) resultado += "-" + d.slice(3, 10);
+  if (d.length > 10) resultado += "-" + d.slice(10, 11);
+  return resultado;
+}
+
+export function formatTelefono(digitos: string): string {
+  const d = digitos.slice(0, 10);
+  if (d.length === 0) return "";
+  let resultado = `(${d.slice(0, 3)}`;
+  if (d.length >= 3) resultado += ")";
+  if (d.length > 3) resultado += " " + d.slice(3, 6);
+  if (d.length > 6) resultado += "-" + d.slice(6, 10);
+  return resultado;
+}
