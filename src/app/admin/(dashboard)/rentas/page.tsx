@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { subirArchivo } from "@/lib/storage";
+import { subirArchivo, borrarArchivos } from "@/lib/storage";
 import { formatFecha, formatHora12h, formatMoneda } from "@/lib/format";
 import { EstadoRentaBadge } from "@/components/admin/badges";
 import { RentaAcciones } from "@/components/admin/renta-acciones";
@@ -141,6 +141,68 @@ export default function AdminRentasPage() {
     }
   }
 
+  async function eliminarRenta(renta: RentaConRelaciones): Promise<boolean> {
+    marcarProcesando(renta.id, true);
+    try {
+      // 1) Fotos primero. Si alguna falla no abortamos el resto — es
+      // preferible una foto huérfana en Storage a perder el registro.
+      await borrarArchivos(supabase, [
+        renta.adelanto_foto_url,
+        renta.foto_antes_url,
+        renta.foto_despues_url,
+      ]);
+
+      // 2) Revierte horas_maquina solo si la renta ya las había sumado
+      // (completada). Suma atómica en la base de datos, no lectura+escritura.
+      if (renta.estado === "completada" && renta.jetski_id) {
+        const { error: errorHoras } = await supabase.rpc("restar_horas_maquina", {
+          p_jetski_id: renta.jetski_id,
+          p_horas: renta.horas_renta,
+        });
+        if (errorHoras) throw errorHoras;
+      }
+
+      // 3) El registro. Si esto falla las fotos ya se perdieron, pero el
+      // dato sigue existiendo — preferible a un registro borrado que
+      // apunte a fotos huérfanas.
+      const { error: errorRenta } = await supabase.from("rentas").delete().eq("id", renta.id);
+      if (errorRenta) throw errorRenta;
+
+      // 4) Si el jetski estaba en_renta por esta renta (confirmada = en uso)
+      // y no queda ninguna otra renta confirmada para él, vuelve a disponible.
+      if (renta.estado === "confirmada" && renta.jetski_id && renta.jetski?.estado === "en_renta") {
+        const { count } = await supabase
+          .from("rentas")
+          .select("*", { count: "exact", head: true })
+          .eq("jetski_id", renta.jetski_id)
+          .eq("estado", "confirmada");
+        if (!count) {
+          await supabase.from("jetskis").update({ estado: "disponible" }).eq("id", renta.jetski_id);
+        }
+      }
+
+      // 5) El cliente solo se borra si no le queda ninguna otra renta.
+      if (renta.cliente_id) {
+        const { count: rentasCliente } = await supabase
+          .from("rentas")
+          .select("*", { count: "exact", head: true })
+          .eq("cliente_id", renta.cliente_id);
+        if (!rentasCliente) {
+          await supabase.from("clientes").delete().eq("id", renta.cliente_id);
+        }
+      }
+
+      setRentas((prev) => prev.filter((r) => r.id !== renta.id));
+      toast.success("Renta eliminada.");
+      marcarProcesando(renta.id, false);
+      return true;
+    } catch (error) {
+      toast.error(mensajeError(error));
+      marcarProcesando(renta.id, false);
+      return false;
+    }
+  }
+
   async function subirFoto(
     renta: RentaConRelaciones,
     file: File,
@@ -260,6 +322,7 @@ export default function AdminRentasPage() {
                           onToggleDeposito={(v) => toggleDeposito(r, v)}
                           onSubirFotoAntes={(f) => subirFoto(r, f, "foto_antes_url")}
                           onSubirFotoDespues={(f) => subirFoto(r, f, "foto_despues_url")}
+                          onEliminar={() => eliminarRenta(r)}
                         />
                       </TableCell>
                     </TableRow>
@@ -297,6 +360,7 @@ export default function AdminRentasPage() {
                     onToggleDeposito={(v) => toggleDeposito(r, v)}
                     onSubirFotoAntes={(f) => subirFoto(r, f, "foto_antes_url")}
                     onSubirFotoDespues={(f) => subirFoto(r, f, "foto_despues_url")}
+                    onEliminar={() => eliminarRenta(r)}
                   />
                 </CardContent>
               </Card>

@@ -114,6 +114,10 @@ export interface Database {
         Args: { p_jetski_id: string; p_horas: number };
         Returns: undefined;
       };
+      restar_horas_maquina: {
+        Args: { p_jetski_id: string; p_horas: number };
+        Returns: undefined;
+      };
     };
   };
 }

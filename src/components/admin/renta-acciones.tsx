@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import type { Renta } from "@/lib/types";
+import { EliminarRentaDialog, type RentaParaEliminar } from "@/components/admin/eliminar-renta-dialog";
 
 interface Props {
-  renta: Renta;
+  renta: RentaParaEliminar;
   procesando: boolean;
   onVerFoto: (url: string, titulo: string) => void;
   onConfirmar: () => void;
@@ -16,6 +16,7 @@ interface Props {
   onToggleDeposito: (valor: boolean) => void;
   onSubirFotoAntes: (file: File) => void;
   onSubirFotoDespues: (file: File) => void;
+  onEliminar: () => Promise<boolean>;
 }
 
 export function RentaAcciones({
@@ -28,6 +29,7 @@ export function RentaAcciones({
   onToggleDeposito,
   onSubirFotoAntes,
   onSubirFotoDespues,
+  onEliminar,
 }: Props) {
   const [idAntes] = useState(() => `foto-antes-${renta.id}`);
   const [idDespues] = useState(() => `foto-despues-${renta.id}`);
@@ -78,6 +80,8 @@ export function RentaAcciones({
             Completar renta
           </Button>
         )}
+
+        <EliminarRentaDialog renta={renta} disabled={procesando} onEliminar={onEliminar} />
       </div>
 
       {(renta.estado === "confirmada" || renta.estado === "completada") && (

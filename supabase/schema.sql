@@ -228,3 +228,36 @@ create policy "exotic_jetsky_insert_admin" on storage.objects
     and auth.role() = 'authenticated'
     and (storage.foldername(name))[1] in ('jetskis', 'rentas', 'configuracion')
   );
+
+-- ═══════════════════════════════════════════════════════════════
+-- ELIMINAR RENTAS — /admin/rentas. Re-ejecutable.
+-- ═══════════════════════════════════════════════════════════════
+
+-- No existía política de DELETE en storage.objects: el insert/select/update
+-- estaban cubiertos pero borrar fotos (adelanto, antes, después) fallaba
+-- silenciosamente. Sin restricción de carpeta porque el admin necesita
+-- borrar de cualquiera ('adelantos', 'rentas', 'jetskis', 'configuracion').
+drop policy if exists "exotic_jetsky_delete_admin" on storage.objects;
+create policy "exotic_jetsky_delete_admin" on storage.objects
+  for delete
+  using (bucket_id = 'exotic-jetsky' and auth.role() = 'authenticated');
+
+-- Inverso de sumar_horas_maquina, para cuando se elimina una renta
+-- "completada" y hay que revertir las horas que ya había sumado a la
+-- máquina del jetski. Misma suma atómica en la base de datos (nada de
+-- leer horas_maquina en JS y restar ahí — condición de carrera si dos
+-- admins operan el mismo jetski a la vez). greatest(0, ...) evita que
+-- quede en negativo si algo ya se ajustó manualmente entretanto.
+create or replace function restar_horas_maquina(p_jetski_id uuid, p_horas numeric)
+returns void
+language sql
+as $$
+  update jetskis
+  set horas_maquina = greatest(0, horas_maquina - p_horas)
+  where id = p_jetski_id;
+$$;
+
+grant execute on function restar_horas_maquina(uuid, numeric) to authenticated;
+
+-- clientes_delete y rentas_delete ya existían (ver arriba) — verificado,
+-- no hace falta agregarlas.
