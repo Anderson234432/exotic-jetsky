@@ -5,7 +5,13 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { subirArchivo } from "@/lib/storage";
 import { mensajeError } from "@/lib/errors";
-import { NOMBRE_NEGOCIO_DEFECTO, SUBTITULO_DEFECTO, REGLAS_DEFECTO } from "@/lib/configuracion";
+import {
+  NOMBRE_NEGOCIO_DEFECTO,
+  SUBTITULO_DEFECTO,
+  REGLAS_DEFECTO,
+  HORA_APERTURA_DEFECTO,
+  HORA_CIERRE_DEFECTO,
+} from "@/lib/configuracion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,6 +31,8 @@ export default function AdminConfiguracionPage() {
   const [subtitulo, setSubtitulo] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [reglas, setReglas] = useState("");
+  const [horaApertura, setHoraApertura] = useState(HORA_APERTURA_DEFECTO);
+  const [horaCierre, setHoraCierre] = useState(HORA_CIERRE_DEFECTO);
 
   useEffect(() => {
     supabase
@@ -39,6 +47,8 @@ export default function AdminConfiguracionPage() {
           setSubtitulo(data.subtitulo ?? "");
           setWhatsapp(data.whatsapp ?? "");
           setReglas(data.reglas ?? "");
+          setHoraApertura((data.hora_apertura ?? HORA_APERTURA_DEFECTO).slice(0, 5));
+          setHoraCierre((data.hora_cierre ?? HORA_CIERRE_DEFECTO).slice(0, 5));
         }
         setCargando(false);
       });
@@ -60,6 +70,8 @@ export default function AdminConfiguracionPage() {
           subtitulo: subtitulo.trim() || null,
           whatsapp: whatsapp.trim() || null,
           reglas: reglas.trim() || null,
+          hora_apertura: horaApertura || null,
+          hora_cierre: horaCierre || null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", true);
@@ -159,6 +171,33 @@ export default function AdminConfiguracionPage() {
               Cada línea aparece como una regla separada en la página principal.
             </p>
           </div>
+
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+            <div className="flex flex-1 flex-col gap-2">
+              <Label htmlFor="horaApertura">Hora de apertura</Label>
+              <Input
+                id="horaApertura"
+                type="time"
+                className="h-11"
+                value={horaApertura}
+                onChange={(e) => setHoraApertura(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <Label htmlFor="horaCierre">Hora de cierre</Label>
+              <Input
+                id="horaCierre"
+                type="time"
+                className="h-11"
+                value={horaCierre}
+                onChange={(e) => setHoraCierre(e.target.value)}
+              />
+            </div>
+          </div>
+          <p className="-mt-2 text-xs text-muted-foreground">
+            Los horarios de renta en /reservar se generan en bloques de 30 minutos dentro de
+            este rango.
+          </p>
 
           <Button
             onClick={handleGuardar}

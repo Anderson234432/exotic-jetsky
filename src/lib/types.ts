@@ -87,6 +87,8 @@ export interface Configuracion {
   subtitulo: string | null;
   whatsapp: string | null;
   reglas: string | null;
+  hora_apertura: string | null;
+  hora_cierre: string | null;
   updated_at: string;
 }
 

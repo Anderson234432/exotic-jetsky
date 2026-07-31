@@ -294,3 +294,65 @@ create policy "cuentas_admin" on cuentas_bancarias for all using (auth.role() = 
 -- necesita ver para pagar, no son datos sensibles como en rentas/jetskis.
 grant select on cuentas_bancarias to anon, authenticated;
 grant insert, update, delete on cuentas_bancarias to authenticated;
+
+-- ═══════════════════════════════════════════════════════════════
+-- HORARIOS POR BLOQUES Y VALIDACIÓN DE SOLAPAMIENTO — /reservar paso 2.
+-- Re-ejecutable.
+-- ═══════════════════════════════════════════════════════════════
+
+-- Horario configurable desde /admin/configuracion (parte 3). Si se deja sin
+-- tocar, /reservar usa estos defaults igual que los demás campos opcionales.
+alter table configuracion add column if not exists hora_apertura time default '09:00';
+alter table configuracion add column if not exists hora_cierre time default '18:00';
+
+-- La grilla de horarios calcula disponibilidad en el navegador comparando
+-- contra las rentas existentes del jetski+fecha, así que "anon" necesita ver
+-- horas_renta además de hora_inicio (que ya era pública). No es un dato
+-- sensible por sí solo — solo una duración.
+revoke select on rentas from anon;
+grant select (id, jetski_id, estado, fecha, hora_inicio, horas_renta) on rentas to anon;
+
+-- ── Antes de aplicar el constraint: busca solapamientos ya existentes ──
+-- Si esta consulta devuelve filas, resuélvelas (cancela o reprograma una de
+-- las dos) antes de correr el "alter table" de abajo — si no, va a fallar
+-- con "conflicting key value violates exclusion constraint".
+--
+-- select
+--   r1.id as renta_1, r2.id as renta_2, r1.jetski_id, r1.fecha,
+--   r1.hora_inicio as hora_1, r1.horas_renta as horas_1,
+--   r2.hora_inicio as hora_2, r2.horas_renta as horas_2,
+--   r1.estado as estado_1, r2.estado as estado_2
+-- from rentas r1
+-- join rentas r2
+--   on r1.jetski_id = r2.jetski_id
+--   and r1.fecha = r2.fecha
+--   and r1.id < r2.id
+-- where r1.estado in ('en_espera', 'confirmada', 'completada')
+--   and r2.estado in ('en_espera', 'confirmada', 'completada')
+--   and (r1.fecha + r1.hora_inicio)::timestamp
+--     < (r2.fecha + r2.hora_inicio)::timestamp + (r2.horas_renta::float8 * interval '1 hour')
+--   and (r2.fecha + r2.hora_inicio)::timestamp
+--     < (r1.fecha + r1.hora_inicio)::timestamp + (r1.horas_renta::float8 * interval '1 hour');
+
+-- btree_gist: sin esto un EXCLUDE constraint no puede usar "=" sobre jetski_id
+-- (uuid) combinado con "&&" sobre el rango de tiempo en el mismo índice GiST.
+-- Es una extensión estándar de Postgres, viene habilitada en Supabase.
+create extension if not exists btree_gist;
+
+-- A prueba de condición de carrera: dos inserts simultáneos para el mismo
+-- jetski con horarios que se solapan, la base de datos rechaza el segundo
+-- sin importar qué tan rápido lleguen (la validación en el navegador ya
+-- filtra la mayoría de los casos, pero no puede evitar esto). horas_renta
+-- se castea a float8 explícitamente porque no hay un operador "numeric *
+-- interval" directo en Postgres — solo "float8 * interval".
+alter table rentas drop constraint if exists rentas_sin_solapamiento;
+alter table rentas
+  add constraint rentas_sin_solapamiento
+  exclude using gist (
+    jetski_id with =,
+    tsrange(
+      (fecha + hora_inicio)::timestamp,
+      (fecha + hora_inicio)::timestamp + (horas_renta::float8 * interval '1 hour')
+    ) with &&
+  )
+  where (estado in ('en_espera', 'confirmada', 'completada'));
