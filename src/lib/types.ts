@@ -67,6 +67,19 @@ export interface RentaConRelaciones extends Renta {
   cliente: Cliente | null;
 }
 
+export type TipoCuenta = "ahorro" | "corriente";
+
+export interface CuentaBancaria {
+  id: string;
+  banco: string;
+  tipo: TipoCuenta;
+  numero: string;
+  titular: string;
+  orden: number;
+  activa: boolean;
+  created_at: string;
+}
+
 export interface Configuracion {
   id: boolean;
   foto_portada_url: string | null;
@@ -107,6 +120,10 @@ export interface Database {
         Partial<Mantenimiento> & { horas_en_mantenimiento: number }
       >;
       configuracion: TablaGenerica<Configuracion, Partial<Configuracion>>;
+      cuentas_bancarias: TablaGenerica<
+        CuentaBancaria,
+        Partial<CuentaBancaria> & { banco: string; tipo: TipoCuenta; numero: string; titular: string }
+      >;
     };
     Views: Record<string, never>;
     Functions: {

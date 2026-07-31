@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
+import { CuentasBancarias } from "@/components/admin/cuentas-bancarias";
 import { toast } from "sonner";
 
 export default function AdminConfiguracionPage() {
@@ -168,6 +169,8 @@ export default function AdminConfiguracionPage() {
           </Button>
         </CardContent>
       </Card>
+
+      <CuentasBancarias />
     </div>
   );
 }

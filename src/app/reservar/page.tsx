@@ -7,12 +7,13 @@ import { createClient } from "@/lib/supabase/client";
 import { subirArchivo } from "@/lib/storage";
 import { formatCedula, formatMoneda, formatTelefono, hoyRD } from "@/lib/format";
 import { NOMBRE_NEGOCIO_DEFECTO } from "@/lib/configuracion";
-import type { Jetski } from "@/lib/types";
+import type { CuentaBancaria, Jetski } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { CuentaBancariaCard } from "@/components/public/cuenta-bancaria-card";
 import {
   Select,
   SelectContent,
@@ -60,6 +61,7 @@ export default function ReservarPage() {
   const [enviando, setEnviando] = useState(false);
   const [nombreNegocio, setNombreNegocio] = useState(NOMBRE_NEGOCIO_DEFECTO);
   const [whatsapp, setWhatsapp] = useState(process.env.NEXT_PUBLIC_WHATSAPP_NUMERO ?? "");
+  const [cuentas, setCuentas] = useState<CuentaBancaria[]>([]);
 
   // DEBUG TEMPORAL — se loguea en CADA render del componente, sin excepción.
   // Solo en el navegador (esta página se pre-renderiza en el build también).
@@ -85,6 +87,13 @@ export default function ReservarPage() {
         if (data?.nombre_negocio) setNombreNegocio(data.nombre_negocio);
         if (data?.whatsapp) setWhatsapp(data.whatsapp);
       });
+
+    supabase
+      .from("cuentas_bancarias")
+      .select("*")
+      .eq("activa", true)
+      .order("orden")
+      .then(({ data }) => setCuentas(data ?? []));
   }, [supabase]);
 
   // DEBUG TEMPORAL — quitar después de diagnosticar el bug del select.
@@ -174,6 +183,14 @@ export default function ReservarPage() {
         .select("id")
         .single();
       if (errorRenta || !renta) throw errorRenta;
+
+      // Fire-and-forget: si el correo al dueño falla, la reserva ya está
+      // creada y el cliente debe ver su confirmación igual.
+      fetch("/api/notificar-reserva", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: renta.id }),
+      }).catch(() => {});
 
       router.push(`/reserva/${renta.id}`);
     } catch (error) {
@@ -363,6 +380,20 @@ export default function ReservarPage() {
           {paso === 3 && (
             <>
               <h1 className="text-xl font-medium text-ej-tinta">Pago del adelanto</h1>
+
+              {cuentas.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium text-ej-tinta">
+                    Realiza el pago a una de estas cuentas
+                  </p>
+                  <div className="flex flex-col gap-2.5">
+                    {cuentas.map((cuenta) => (
+                      <CuentaBancariaCard key={cuenta.id} cuenta={cuenta} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="rounded-[16px] bg-ej-turquesa-sv p-4 text-sm text-ej-tinta">
                 Para confirmar tu reserva, realiza el pago del adelanto y contáctanos
                 por{" "}

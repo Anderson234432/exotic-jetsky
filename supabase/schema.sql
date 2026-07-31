@@ -261,3 +261,36 @@ grant execute on function restar_horas_maquina(uuid, numeric) to authenticated;
 
 -- clientes_delete y rentas_delete ya existían (ver arriba) — verificado,
 -- no hace falta agregarlas.
+
+-- ═══════════════════════════════════════════════════════════════
+-- CUENTAS BANCARIAS — editables desde /admin/configuracion, visibles
+-- en /reservar paso 3. Re-ejecutable.
+-- ═══════════════════════════════════════════════════════════════
+
+create table if not exists cuentas_bancarias (
+  id uuid primary key default gen_random_uuid(),
+  banco text not null,
+  tipo text not null check (tipo in ('ahorro', 'corriente')),
+  numero text not null,
+  titular text not null,
+  orden integer not null default 0,
+  activa boolean not null default true,
+  created_at timestamptz default now()
+);
+
+alter table cuentas_bancarias enable row level security;
+
+drop policy if exists "cuentas_select" on cuentas_bancarias;
+drop policy if exists "cuentas_admin" on cuentas_bancarias;
+
+-- Dos políticas permisivas para SELECT se combinan con OR: un admin
+-- (authenticated) matchea "cuentas_admin" sin importar "activa", así ve
+-- todas para poder reactivarlas; un cliente anónimo solo matchea
+-- "cuentas_select" y por lo tanto solo ve las activas.
+create policy "cuentas_select" on cuentas_bancarias for select using (activa = true);
+create policy "cuentas_admin" on cuentas_bancarias for all using (auth.role() = 'authenticated');
+
+-- Sin restricción de columnas: numero/titular son justo lo que el cliente
+-- necesita ver para pagar, no son datos sensibles como en rentas/jetskis.
+grant select on cuentas_bancarias to anon, authenticated;
+grant insert, update, delete on cuentas_bancarias to authenticated;
