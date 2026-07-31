@@ -59,7 +59,14 @@ export default function ReservarPage() {
   const [comprobante, setComprobante] = useState<File | null>(null);
   const [enviando, setEnviando] = useState(false);
 
+  // DEBUG TEMPORAL — se loguea en CADA render del componente, sin excepción.
+  // Solo en el navegador (esta página se pre-renderiza en el build también).
+  if (typeof window !== "undefined") {
+    console.log("[DEBUG] render ReservarPage");
+  }
+
   useEffect(() => {
+    console.log("[DEBUG] efecto fetch jetskis EJECUTADO (debería ser 1 sola vez)");
     supabase
       .from("jetskis")
       .select("id, nombre, precio_hora")
@@ -67,6 +74,11 @@ export default function ReservarPage() {
       .order("nombre")
       .then(({ data }) => setJetskis(data ?? []));
   }, [supabase]);
+
+  // DEBUG TEMPORAL — quitar después de diagnosticar el bug del select.
+  useEffect(() => {
+    console.log("[DEBUG] estado form:", JSON.stringify(form), "jetskis:", jetskis.map((j) => j.id));
+  }, [form, jetskis]);
 
   const jetskiSeleccionado = jetskis.find((j) => j.id === form.jetskiId);
   const horas = Number(form.horasRenta) || 0;
@@ -89,6 +101,15 @@ export default function ReservarPage() {
       horas > 0 &&
       horas <= 24
     );
+  }
+
+  function motivoPaso2Incompleto() {
+    if (!form.jetskiId) return "Selecciona un jetski.";
+    if (!form.fecha) return "Elige una fecha.";
+    if (form.fecha < hoyRD()) return "La fecha no puede ser anterior a hoy.";
+    if (!form.horaInicio) return "Elige una hora de inicio.";
+    if (!(horas > 0 && horas <= 24)) return "Las horas a rentar deben estar entre 1 y 24.";
+    return null;
   }
 
   async function handleSubmit() {
@@ -214,7 +235,10 @@ export default function ReservarPage() {
                 <Label>Jetski</Label>
                 <Select
                   value={form.jetskiId}
-                  onValueChange={(v) => update("jetskiId", v ?? "")}
+                  onValueChange={(v) => {
+                    console.log("[DEBUG] select onValueChange:", JSON.stringify(v), typeof v);
+                    update("jetskiId", v ?? "");
+                  }}
                 >
                   <SelectTrigger className="h-11 w-full">
                     <SelectValue placeholder="Selecciona un jetski" />
@@ -282,6 +306,11 @@ export default function ReservarPage() {
                   Siguiente
                 </Button>
               </div>
+              {!validarPaso2() && (
+                <p className="text-center text-sm text-muted-foreground">
+                  {motivoPaso2Incompleto()}
+                </p>
+              )}
             </>
           )}
 
